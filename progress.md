@@ -4,3 +4,6 @@
 
 ## Wed, 1 Jan 2020
 - Created grid on Pygame, researched on memory allocation and frame buffer
+
+## Thurs, 2 Jan 2020
+- Did Nothing
