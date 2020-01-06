@@ -1,3 +1,7 @@
+## Mon, 6 Jan 2020
+- Asynchronous frame buffer implemented
+- Researched on double buffering
+
 ## Fri, 3 Jan 2020
 - Worked on updating frame buffer 
 
