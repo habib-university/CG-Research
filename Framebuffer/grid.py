@@ -24,8 +24,7 @@ frame_buffer = np.zeros((255, 255, 3))
 
 #update after interval
 DISPLAY = pygame.USEREVENT + 1
-pygame.time.set_timer(DISPLAY, 5000)
-#pygame.time.set_timer(DISPLAY, 16)
+pygame.time.set_timer(DISPLAY, 16)
 
 while running:
       
@@ -35,21 +34,18 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == DISPLAY and not refresh:
-            print('Refresh screen')
+            #print('Refresh screen')
             refresh = True
                 
             #get buffer info
             s = pygame.surfarray.pixels3d(screen)
             frame_buffer = s
-            #print(s)
             #update buffer info
-            #for i in range(len(frame_buffer)):
-            #    for j in range(len(frame_buffer[i])):
-            #        if np.all(frame_buffer[i][j]):
-            #            frame_buffer[i][j] = [255,0,0]
-            #frame_buffer[random.randrange(len(frame_buffer))] = [255,0,0]
+            for i in range(len(frame_buffer)):
+                for j in range(len(frame_buffer[i])):
+                    if np.all(frame_buffer[i][j]):
+                        frame_buffer[i][j] = [255,0,0]
             pygame.surfarray.blit_array(screen, frame_buffer)
-            print('done')
             
         elif event.type == DISPLAY and refresh:
             refresh = False
