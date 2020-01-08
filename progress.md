@@ -1,3 +1,8 @@
+## Wed, 8 Jan 2020
+- Corrected previous code
+- Researched on asynchronicity and how to test it
+- Started working on double buffering
+
 ## Tues, 7 Jan 2020
 - Made corrections in code
 
