@@ -20,6 +20,7 @@ white = (255, 255, 255)
 red = (255, 0, 0)
 running = True
 refresh = False
+double_buffering = False
 frame_buffer = np.zeros((255, 255, 3))
 
 #update after interval
@@ -34,12 +35,10 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == DISPLAY and not refresh:
-            #print('Refresh screen')
             refresh = True
-                
             #get buffer info
-            s = pygame.surfarray.pixels3d(screen)
-            frame_buffer = s
+            #s = pygame.surfarray.pixels3d(screen)
+
             #update buffer info
             for i in range(len(frame_buffer)):
                 for j in range(len(frame_buffer[i])):
@@ -55,8 +54,12 @@ while running:
         screen.fill(black)
         for y in range(margin, HEIGHT, width+margin):
             for x in range(margin, HEIGHT, width+margin):
-                rect = pygame.Rect(y, x, width, height)
-                pygame.draw.rect(screen, white, rect)
+                for i in range(width+1):
+                    frame_buffer[y][x+i] = [255, 255, 255]
+                    frame_buffer[y+i][x] = [255, 255, 255]
+                    frame_buffer[y+width][x+i] = [255, 255, 255]    
+                    frame_buffer[y+i][x+width] = [255, 255, 255]
+        pygame.surfarray.blit_array(screen, frame_buffer)
 
     pygame.display.update()
     
