@@ -1,3 +1,7 @@
+## Thurs, 9 Jan 2020
+- Cleaned code by using classes
+- Worked on double buffering
+
 ## Wed, 8 Jan 2020
 - Corrected previous code
 - Researched on asynchronicity and how to test it
