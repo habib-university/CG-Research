@@ -1,7 +1,8 @@
+import sys
 import pygame
 import random
 import numpy as np
-
+np.set_printoptions(threshold=sys.maxsize)
 #width and height of grid
 WIDTH = 255
 HEIGHT = 255
@@ -12,7 +13,6 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Grid")
 
 #initialize variables
-block_size = 20
 width = height = 20
 margin = 5
 black = (0,0,0)
@@ -20,10 +20,12 @@ white = (255, 255, 255)
 red = (255, 0, 0)
 running = True
 refresh = False
+double_buffering = False
+frame_buffer = np.zeros((255, 255, 3))
 
-#update after 60 second interval
+#update after interval
 DISPLAY = pygame.USEREVENT + 1
-pygame.time.set_timer(DISPLAY, 60000)
+pygame.time.set_timer(DISPLAY, 16)
 
 while running:
       
@@ -33,21 +35,16 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == DISPLAY and not refresh:
-            print('Refresh screen')
             refresh = True
-                
             #get buffer info
-            s = pygame.surfarray.pixels3d(screen)
-                
+            #s = pygame.surfarray.pixels3d(screen)
+
             #update buffer info
-            for i in range(len(s)):
-                for j in range(len(s[i])):
-                    if np.all(s[i][j]):
-                        s[i][j] = [255,0,0]
-            out = pygame.surfarray.make_surface(s)
-            del s
-            screen.blit(out, (0,0))
-            print('done')
+            for i in range(len(frame_buffer)):
+                for j in range(len(frame_buffer[i])):
+                    if np.all(frame_buffer[i][j]):
+                        frame_buffer[i][j] = [255,0,0]
+            pygame.surfarray.blit_array(screen, frame_buffer)
             
         elif event.type == DISPLAY and refresh:
             refresh = False
@@ -57,8 +54,12 @@ while running:
         screen.fill(black)
         for y in range(margin, HEIGHT, width+margin):
             for x in range(margin, HEIGHT, width+margin):
-                rect = pygame.Rect(y, x, block_size, block_size)
-                pygame.draw.rect(screen, white, rect)
+                for i in range(width+1):
+                    frame_buffer[y][x+i] = [255, 255, 255]
+                    frame_buffer[y+i][x] = [255, 255, 255]
+                    frame_buffer[y+width][x+i] = [255, 255, 255]    
+                    frame_buffer[y+i][x+width] = [255, 255, 255]
+        pygame.surfarray.blit_array(screen, frame_buffer)
 
     pygame.display.update()
     
