@@ -1,3 +1,6 @@
+## Fri, 10 Jan 2020
+- Researched on how to test code for fragment shader
+
 ## Thurs, 9 Jan 2020
 - Cleaned code by using classes
 - Worked on double buffering
