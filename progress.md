@@ -1,3 +1,9 @@
+## Tues, 14 Jan 2020
+- Worked on testing double buffering 
+
+## Mon, 13 Jan 2020
+- Improved double buffering
+
 ## Fri, 10 Jan 2020
 - Researched on how to test code for fragment shader
 
