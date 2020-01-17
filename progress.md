@@ -1,3 +1,10 @@
+## Thurs, 16 Jan 2020
+- Tested code for fragment shader
+
+## Wed, 15 Jan 2020
+- Fixed bugs in double buffering code 
+- Explored options other than pygame timer for asynchronicity
+
 ## Tues, 14 Jan 2020
 - Worked on testing double buffering 
 
