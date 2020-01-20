@@ -1,3 +1,4 @@
+import asyncio
 import pygame
 from framebuffer import Framebuffer
 from constants import *
@@ -5,7 +6,8 @@ from constants import *
 """
     This file contains the code for fragment shader.
 """
-        
+
+
 #width and height of grid
 WIDTH = 255
 HEIGHT = 255
@@ -18,42 +20,67 @@ pygame.display.set_caption("Grid")
 #initialize variables
 width = height = 20
 margin = 5
+frame_buffer = Framebuffer(width, height, margin, WIDTH, HEIGHT)
+    
+async def refresh_buffer(delay, r):
+    await asyncio.sleep(delay)
+    if r:
+        refresh = False
+    elif not r:
+        refresh = True
+    return refresh
+
+async def switch_screen(delay, r):
+    await asyncio.sleep(delay)
+    if r:
+        #print('dadafjds')
+        switch = False
+        frame_buffer.draw(white)
+    else:
+        #print('draw face')
+        switch = True
+        frame_buffer.draw_face(red)
+    return switch
+
+##async def main():
+    
 running = True
 refresh = False
-frame_buffer = Framebuffer(width, height, margin, WIDTH, HEIGHT)
-
-#update after interval
-DISPLAY = pygame.USEREVENT + 1
-pygame.time.set_timer(DISPLAY, 16)
-
-##SWITCH = pygame.USEREVENT + 2
-##pygame.time.set_timer(SWITCH, 16)
-
-
-while running:
-
-    frame_buffer.draw(white)
+switch = False
     
-    # process inputs(events)
-    for event in pygame.event.get():
+frame_buffer.draw(white)
+    
+while running:
         
-        # check for closing window
+    loop = asyncio.get_event_loop()
+    #task = loop.create_task(refresh_buffer(0.016, refresh))
+    #task2 = loop.create_task(switch_screen(0.058, switch))
+    tasks = refresh_buffer(0.016, refresh), switch_screen(0.058, switch)
+    a, b = loop.run_until_complete(asyncio.gather(*tasks))
+    #loop.close()
+    refresh = a
+    switch = b
+        # process inputs(events)
+    for event in pygame.event.get():
+            
+            # check for closing window
         if event.type == pygame.QUIT:
             running = False
-            
+                
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_d:
                 frame_buffer.enable_doubleBuffering()
-
-        elif event.type == DISPLAY and not refresh:
-            refresh = True
-
-        elif event.type == DISPLAY and refresh:
-            refresh = False
-    
+        #await task
+        #await task2
+    #print(switch)
     frame_buffer.set_buffer(refresh)
     pygame.surfarray.blit_array(screen, frame_buffer.get_buffer())
 
+        
+        
     pygame.display.update()
     
 pygame.quit()
+    
+#loop = asyncio.get_event_loop()
+#loop.run_until_complete(main())

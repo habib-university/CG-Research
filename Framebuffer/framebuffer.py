@@ -1,9 +1,9 @@
-import numpy as np
-from constants import *
-
 """
     This file represents a class for frame buffer object.
 """
+
+import numpy as np
+from constants import *
 
 class Framebuffer:
     def __init__(self, width, height, margin, grid_width, grid_height):
@@ -34,6 +34,7 @@ class Framebuffer:
                     for j in range(self.width+1):
                         temp = y+n
                         if self.double_buffer:
+                            #print('double')
                             self.back_buffer[temp][x+j] = color
                         else:
                             self.front_buffer[temp][x+j] = color
@@ -45,6 +46,7 @@ class Framebuffer:
                     for j in range(self.width+1):
                         temp = y+n
                         if self.double_buffer:
+                            #print('double face')
                             self.back_buffer[temp][x+j] = color
                             self.back_buffer[55+n][55+j] = black #eyes
                             self.back_buffer[180+n][55+j] = black
@@ -62,17 +64,18 @@ class Framebuffer:
                             self.front_buffer[155+n][155+j] = black
                             
     def enable_doubleBuffering(self):
+        print('double buffering enabled')
         self.double_buffer = True
 
     def set_buffer(self, refresh):
-        if not self.double_buffer and refresh:
+        if refresh:
             np.copyto(self.front_buffer, self.front_buffer)
-        elif self.double_buffer and refresh:
+        if self.double_buffer and not refresh:
+            #print('here')
             np.copyto(self.front_buffer, self.back_buffer)
-        elif self.double_buffer and not refresh:
-            np.copyto(self.front_buffer, self.back_buffer)
+            #print(self.front_buffer)
             self.front_buffer, self.back_buffer = self.back_buffer, self.front_buffer
-        
+            #print(self.front_buffer)
     def get_buffer(self):
         return self.front_buffer
     
