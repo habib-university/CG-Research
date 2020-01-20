@@ -20,6 +20,9 @@ pygame.display.set_caption("Grid")
 #initialize variables
 width = height = 20
 margin = 5
+running = True
+refresh = False
+switch = False
 frame_buffer = Framebuffer(width, height, margin, WIDTH, HEIGHT)
     
 async def refresh_buffer(delay, r):
@@ -33,46 +36,40 @@ async def refresh_buffer(delay, r):
 async def switch_screen(delay, r):
     await asyncio.sleep(delay)
     if r:
-        #print('dadafjds')
         switch = False
         frame_buffer.draw(white)
+        frame_buffer.set_buffer(refresh)
     else:
-        #print('draw face')
         switch = True
         frame_buffer.draw_face(red)
+        frame_buffer.set_buffer(refresh)
     return switch
 
-##async def main():
-    
-running = True
-refresh = False
-switch = False
     
 frame_buffer.draw(white)
-    
+
 while running:
-        
+    
     loop = asyncio.get_event_loop()
     #task = loop.create_task(refresh_buffer(0.016, refresh))
     #task2 = loop.create_task(switch_screen(0.058, switch))
-    tasks = refresh_buffer(0.016, refresh), switch_screen(0.058, switch)
+    
+    tasks = refresh_buffer(0.016, refresh), switch_screen(0.05, switch)
     a, b = loop.run_until_complete(asyncio.gather(*tasks))
-    #loop.close()
     refresh = a
     switch = b
-        # process inputs(events)
+    # process inputs(events)
     for event in pygame.event.get():
             
-            # check for closing window
+        # check for closing window
         if event.type == pygame.QUIT:
             running = False
                 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_d:
                 frame_buffer.enable_doubleBuffering()
-        #await task
-        #await task2
-    #print(switch)
+    #await task
+    #await task2
     frame_buffer.set_buffer(refresh)
     pygame.surfarray.blit_array(screen, frame_buffer.get_buffer())
 
