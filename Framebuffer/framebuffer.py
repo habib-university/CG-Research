@@ -5,6 +5,7 @@ import sys
 import numpy as np
 from constants import *
 np.set_printoptions(threshold=sys.maxsize)
+
 class Framebuffer:
     def __init__(self, width, height, margin, grid_width, grid_height):
         self.width = width 
@@ -60,32 +61,7 @@ class Framebuffer:
                             self.front_buffer[105+n][155+j] = black
                             self.front_buffer[130+n][155+j] = black
                             self.front_buffer[155+n][155+j] = black
-
-    def pixel(self, color):
-        for y in range(self.margin, self.grid_height, self.width + self.margin):
-            for x in range(self.margin, self.grid_width, self.width + self.margin):
-                for n in range(self.width+1):
-                    for j in range(self.width+1):
-                        temp = y+n
-                        if self.double_buffer:
-                            self.back_buffer[55+n][55+j] = [0, 255, 0]
-                        else:
-                            self.front_buffer[55+n][55+j] = [0, 255, 0]
-
-    def pixel2(self, color):
-        for y in range(self.margin, self.grid_height, self.width + self.margin):
-            for x in range(self.margin, self.grid_width, self.width + self.margin):
-                for n in range(self.width+1):
-                    for j in range(self.width+1):
-                        temp = y+n
-                        if self.double_buffer:
-                            self.back_buffer[180+n][55+j] = [0, 0, 255]
-                        else:
-                            self.front_buffer[180+n][55+j] = [0, 0, 255]
-
-    
-
-                            
+                       
     def enable_doubleBuffering(self):
         print('double buffering enabled')
         self.double_buffer = True

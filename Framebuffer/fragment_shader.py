@@ -7,11 +7,6 @@ from constants import *
     This file contains the code for fragment shader.
 """
 
-
-#width and height of grid
-WIDTH = 255
-HEIGHT = 255
-
 #initialize pygame
 pygame.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
@@ -38,11 +33,10 @@ async def switch_screen(delay, r):
     if r:
         switch = False
         frame_buffer.draw(white)
-        frame_buffer.set_buffer(refresh)
     else:
         switch = True
         frame_buffer.draw_face(red)
-        frame_buffer.set_buffer(refresh)
+    frame_buffer.set_buffer(refresh)
     return switch
 
     
@@ -51,13 +45,11 @@ frame_buffer.draw(white)
 while running:
     
     loop = asyncio.get_event_loop()
-    #task = loop.create_task(refresh_buffer(0.016, refresh))
-    #task2 = loop.create_task(switch_screen(0.058, switch))
-    
     tasks = refresh_buffer(0.016, refresh), switch_screen(0.05, switch)
     a, b = loop.run_until_complete(asyncio.gather(*tasks))
     refresh = a
     switch = b
+    
     # process inputs(events)
     for event in pygame.event.get():
             
@@ -68,16 +60,10 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_d:
                 frame_buffer.enable_doubleBuffering()
-    #await task
-    #await task2
+
     frame_buffer.set_buffer(refresh)
     pygame.surfarray.blit_array(screen, frame_buffer.get_buffer())
-
-        
         
     pygame.display.update()
     
 pygame.quit()
-    
-#loop = asyncio.get_event_loop()
-#loop.run_until_complete(main())
