@@ -4,7 +4,7 @@ from framebuffer import Framebuffer
 from constants import *
 
 """
-    This file contains the code for fragment shader.
+    This file contains the code for main program running the graphics pipeline.
 """
 
 #initialize pygame
@@ -39,11 +39,10 @@ async def switch_screen(delay, r):
     frame_buffer.set_buffer(refresh)
     return switch
 
-    
 frame_buffer.draw(white)
 
 while running:
-    
+        
     loop = asyncio.get_event_loop()
     tasks = refresh_buffer(0.016, refresh), switch_screen(0.05, switch)
     a, b = loop.run_until_complete(asyncio.gather(*tasks))
