@@ -9,57 +9,56 @@ from framebuffer import Framebuffer
 from constants import *
 
 class Scissor_Box:
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
+    def __init__(self, left, bottom, width, height):
+        self.left = left
+        self.bottom = bottom
         self.width = width
-        self.height = height
-        self.box = True
-        
+        self.height = height    
 
 class Fragment:
     def __init__(self, pos, color):
-        self.pos = pos #position on screen
-
+        #position on screen
+        self.x = pos[0] 
+        self.y = pos[1]
         """
             The interpolated attributes in the fragment includes color and
             texture. Right now we're only considering color.
         """
         self.color = color
+        self.depth = False
 
 class Fragment_Processing:
-    def __init__(self, fragment, frame_buffer, scissor_box):
-        self.fragment = fragment
+    def __init__(self, fragments, frame_buffer):
+        self.fragments = fragments #an array of fragments
         self.frame_buffer = frame_buffer
-        self.scissorBox = scissor_box
+        self.scissorBox = Scissor_Box(0, 0, WIDTH, HEIGHT)
 
     def enable_test(self, mode):
         if  mode == 'scissor':
             scissor_test()
-        #elif mode == 'stencil':
-        #    stencil_test()
         #elif mode == 'depth':
         #    depth_test()
 
 ##    def pixel_ownership_test(self):
         
     def scissor_test(self):
-        if left <= x and (x < left + width):
-            if bottom <= y and (y < bottom + height):
-                return True
-        return False
+        l = self.scissorBox.left
+        b = self.scissorBox.bottom
+        if self.scissorBox.width < 0 or self.scissorBox.height < 0:
+            return 'Error: Invalid value'
+        for i in range(len(fragments)):
+            if l <= fragments[i].x and (fragments[i].x < l + self.scissorBox.width):
+                if b <= fragments[i].y and (fragments[i].y < b + self.scissorBox.height):
+                    continue
+            return False
         
-##    def stencil_test(self):
 ##    def depth_test(self):
 ##    
 
-def scissor_box(x, y, width, height):
-    if not scissorBox:
-        width = WIDTH
-        height = HEIGHT
-    else:
-        scissorBox = True
-    #Add code if x, y, width, height are actually specified
+#Functions outside classes in main
+def scissor_box(left, bottom, width, height):
+    fragment_processing.scissorBox = Scissor_Box(left, bottom, width, height)
+      
     
         
         
