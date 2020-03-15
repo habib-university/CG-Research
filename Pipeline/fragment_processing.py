@@ -4,6 +4,10 @@
     assuming there are no samplers or textures, so one fragment represents
     one pixel.
 
+    In this case, fragment = pixel (which is how it is in OpenGL. In WebGL,
+    there are different objects for fragment and pixel. However,
+    they're almost the same, with the exception of some attributes.
+
     Alpha test is implemented, however it is deprecated in webGL.
     Similar functionality can be obtained by adding conditionals in the
     fragment shader.
@@ -18,12 +22,6 @@ class Fragment_Processing:
         self.frame_buffer = frame_buffer
         self.alpha_test = False
         self.blending = False
-
-    def enable_test(self, mode):
-        if mode == 'alpha':
-            self.alpha_test = True
-        elif mode == 'blend':
-            self.blending = True
 
 ##    def pixel_ownership_test(self):
          
@@ -142,3 +140,5 @@ class Fragment_Processing:
 ##    def depth_test(self):
 ##    
 
+    def get_fragments(self):
+        return self.fragments

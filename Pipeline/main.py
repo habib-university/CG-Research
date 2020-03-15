@@ -69,3 +69,21 @@ if __name__=='__main__':
             switch = True
 
     pygame.quit()
+
+
+
+
+    """
+    I have not yet combined the fragment processing and fragment shader
+    code with the main file. This is just an overview of how it should
+    be in main.py file.
+
+    
+    frag_shader = Fragment_Shader(frags)
+    frag_shader.set_fragColor([255,0,0,1])
+    frag_shader.run_shader()
+    program = Program()
+    program.attach_shader(fragment_shader)
+    #by default, all the fragment processing operations are disabled.
+    program.draw()
+    """
