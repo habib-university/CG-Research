@@ -4,6 +4,12 @@ import time
 import threading, queue
 from framebuffer import Framebuffer
 from constants import *
+dblBufferOn = False
+pixelOwnershipTestOn = False
+scissorTestOn = False
+alphaTestOn = False
+stencilTestOn = False
+depthBufferTestOn = False
 
 """
     This file contains the code for main program running the graphics pipeline.
@@ -42,8 +48,41 @@ if __name__=='__main__':
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_d:
+                    dblBufferOn = True
+                    # dblBufferOn = not dblBufferOn
                     frame_buffer.enable_doubleBuffering()
-
+                elif event.key == pygame.K_f:
+                    pixelOwnershipTestOn = True
+                    print("PO test enabled")
+                    # enable pixel ownership test
+                elif event.key == pygame.K_g:
+                    if (pixelOwnershipTestOn==True):
+                        scissorTestOn = True
+                        #enable scissor test
+                        print("scissor test enabled")
+                    else:
+                        print("pixel ownership test not enabled: press g")
+                elif event.key == pygame.K_h:
+                    if (scissorTestOn==True):
+                        alphaTestOn = True
+                        #enable alpha test
+                        print("alpha test enabled")
+                    else:
+                        print("scissor test not enabled: press h")
+                elif event.key == pygame.K_j:
+                    if (alphaTestOn==True):
+                        stencilTestOn = True
+                        #enable stencil test
+                        print("stencil test enabled")
+                    else:
+                        print("alpha test not enabled: press j")
+                elif event.key == pygame.K_k:
+                    if (stencilTestOn==True):
+                        depthBufferTestOn = True
+                        #enable depth buffer test
+                        print("depth buffer test enabled")
+                    else:
+                        print("stencil test not enabled: press k")
         if not p0.is_alive():
             p0.start()
             p0.join(0.016)

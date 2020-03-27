@@ -22,7 +22,7 @@ class Fragment_Processing:
         self.frame_buffer = frame_buffer
         self.alpha_test = False
         self.blending = False
-
+        self.depthTest = False
 ##    def pixel_ownership_test(self):
          
     def alpha_func(self, const, ref_val):
@@ -72,8 +72,7 @@ class Fragment_Processing:
             dst_factor = dst_blendfactor(dst, self.fragments[i])
             ###constant color for application specified colors
             ###from programmable fragment shader
-            self.fragments[i] = (src_factor * self.fragments[i]) +
-                                (dst_factor * self.frame_buffer.get_buffer()[i])
+            self.fragments[i] = (src_factor * self.fragments[i]) +(dst_factor * self.frame_buffer.get_buffer()[i])
         
     def src_blendfactor(self, src, frag):
         if src == 'GL_ZERO':
@@ -117,11 +116,9 @@ class Fragment_Processing:
         elif dst == 'GL_ONE':
             dst_blend_factor = [1,1,1,1]
         elif dst == 'GL_SRC_ALPHA':
-            dst_blend_factor = [frag.color[3], frag.color[3],
-                                frag.color[3], frag.color[3]]
+            dst_blend_factor = [frag.color[3], frag.color[3],frag.color[3], frag.color[3]]
          elif dst == 'GL_ONE_MINUS_SRC_ALPHA':
-            src_alpha = [frag.color[3], frag.color[3],
-                        frag.color[3], frag.color[3]]
+            src_alpha = [frag.color[3], frag.color[3], frag.color[3], frag.color[3]]
             dst_blend_factor = map(sub, [1,1,1,1], src_alpha)
         elif dst == 'GL_DST_ALPHA':
             dst_blend_factor = [self.frame_buffer.get_buffer()[i][3],
@@ -137,8 +134,27 @@ class Fragment_Processing:
         return dst_blend_factor
 
     
-##    def depth_test(self):
-##    
-
+    def depth_test(self,func):
+        ##calculate corresponding depth buffer val
+        if not self.depthTest:
+            return 'Depth test not enabled'
+        if func == 'GL_ALWAYS':
+            return True
+        elif func == 'GL_NEVER':
+            return False
+        elif func == 'GL_LESS':
+            for i in range(len(fragments)):
+                if fragments[i].depth > self.framebuffer.depthBuffer[pos[0]][pos[1]]:
+                    self.fragments.remove(fragments[i])
+        else:
+            return 'Invalid value'
+        return self.fragments
+    
     def get_fragments(self):
         return self.fragments
+    
+    def setDepthValue(self, pos, val):
+        if self.depthTest == True:
+            self.framebuffer.depthBuffer[pos[0]][pos[1]] = val
+        else:
+            print("unable to write to buffer")

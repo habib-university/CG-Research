@@ -1,23 +1,23 @@
 class Fragment:
-    def __init__(self, pos, color, buffer_pos):
+    def __init__(self, pos, color, buffer_pos, depth):
         #position on screen in NDC (between 1 and -1)
         self.x = pos[0] 
         self.y = pos[1]
         self.z = pos[2]
-            self.buffer_pos = buffer_pos
+        self.buffer_pos = buffer_pos
         """
             Position will be a vec3 = (x,y,z) and color will be vec4 = (R,G,B,A)
             The interpolated attributes in the fragment includes color and
             texture. Right now we're only considering color.
         """
         self.color = color  #vec4
-        self.depth = False
+        self.depth = depth
 
 ##class Pixel:
 ##    def __init__(self, pos, color, depth):
 ##        self.buffer_position = pos
 ##        self.color = color
-##        self.depth = depth
+#        self.depth = depth
 
 class Fragment_Shader:
     def __init__(self, fragments):
@@ -33,7 +33,9 @@ class Fragment_Shader:
         for i in range(len(self.fragments)):
             self.fragments[i].color = self.frag_color
         return self.fragments
-
+    def set_depthVal(self, depth):
+        self.depth = depth
+        
 class Program:
     def __init__(self, screen, buffer):
         self.screen = screen

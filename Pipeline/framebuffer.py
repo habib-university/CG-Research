@@ -20,7 +20,8 @@ class Framebuffer:
         self.front_buffer = np.zeros((grid_width, grid_height, 3))
         self.back_buffer = np.zeros((grid_width, grid_height, 3))
         self.visible = False
-
+        self.depthBuffer = np.ones((grid_width, grid_height, 3))
+        
     def clear(self):
         y_write = False
         n = self.margin
@@ -149,4 +150,3 @@ class Framebuffer:
                 
     def get_buffer(self):
         return self.front_buffer
-    
