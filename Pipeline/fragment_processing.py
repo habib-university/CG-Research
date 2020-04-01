@@ -12,7 +12,7 @@
     Similar functionality can be obtained by adding conditionals in the
     fragment shader.
 """
-from operator import sub
+from operator import add, sub, mul
 from framebuffer import Framebuffer
 from constants import *
 
@@ -25,115 +25,118 @@ class Fragment_Processing:
 
 ##    def pixel_ownership_test(self):
          
-    def alpha_func(self, const, ref_val):
+    def alpha_func(self, const, ref_val): #ref val will be between 0-255
         if not self.alpha_test:
             return 'Alpha test not enabled'
-        if const == 'GL_ALWAYS':
-            return True
-        elif const == 'GL_NEVER':
-            return False
-        elif const == 'GL_LESS':
-            for i in range(len(fragments)):
-                alpha_val = fragments[i].color[3] #alpha value of each fragment
+        for i in range(len(self.fragments)):
+            if const == 'ALWAYS':
+                continue
+            elif const == 'NEVER':
+                self.fragments[i].color = black
+            elif const == 'LESS':
+                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
                 if alpha_val >= ref_val:
-                    self.fragments.remove(fragments[i]) #did not pass
-        elif const == 'GL_LEQUAL':
-            for i in range(len(fragments)):
-                alpha_val = fragments[i].color[3] #alpha value of each fragment
+                    #self.fragments.remove(fragments[i]) #did not pass
+                    self.fragments[i].color = black
+            elif const == 'LEQUAL':
+                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
                 if alpha_val > ref_val:
-                    self.fragments.remove(fragments[i]) #did not pass
-        elif const == 'GL_GEQUAL':
-            for i in range(len(fragments)):
-                alpha_val = fragments[i].color[3] #alpha value of each fragment
+                    #self.fragments.remove(fragments[i]) #did not pass
+                    self.fragments[i].color = black
+            elif const == 'GEQUAL':
+                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
                 if alpha_val < ref_val: #if less, did not pass, else pass
-                    self.fragments.remove(fragments[i])
-        elif const == 'GL_GREATER':
-            for i in range(len(fragments)):
-                alpha_val = fragments[i].color[3] #alpha value of each fragment
+                    #self.fragments.remove(fragments[i])
+                    self.fragments[i].color = black
+            elif const == 'GREATER': #if frag value is greater than ref value, pass
+                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
                 if alpha_val <= ref_val: #if less or equal, did not pass, else pass
-                    self.fragments.remove(fragments[i]) 
-        elif const == 'GL_EQUAL':
-            for i in range(len(fragments)):
-                alpha_val = fragments[i].color[3] #alpha value of each fragment
-                if alpha_val != ref_val:
-                    self.fragments.remove(fragments[i]) #did not pass
-        elif const == 'GL_NOTEQUAL':
-            for i in range(len(fragments)):
-                alpha_val = fragments[i].color[3] #alpha value of each fragment
+                    #self.fragments.remove(fragments[i])
+                    self.fragments[i].color = black
+            elif const == 'EQUAL':
+                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
                 if alpha_val == ref_val:
-                    self.fragments.remove(fragments[i]) #did not pass
-        else:
-            return 'Invalid value'
+                    #self.fragments.remove(fragments[i]) #did not pass
+                    self.fragments[i].color = black
+            elif const == 'NOTEQUAL':
+                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
+                if alpha_val != ref_val:
+                    #self.fragments.remove(fragments[i]) #did not pass
+                    self.fragments[i].color = black
+            else:
+                return 'Invalid value'
         return self.fragments
             
     def blend_func(self, src, dst):
         for i in range(len(self.fragments)):
-            src_factor = src_blendfactor(src, self.fragments[i])
-            dst_factor = dst_blendfactor(dst, self.fragments[i])
+            src_factor = self.src_blendfactor(src, self.fragments[i])
+            dst_factor = self.dst_blendfactor(dst, self.fragments[i])
             ###constant color for application specified colors
             ###from programmable fragment shader
-            self.fragments[i] = (src_factor * self.fragments[i]) +
-                                (dst_factor * self.frame_buffer.get_buffer()[i])
+            ind = self.fragments[i].buffer_pos
+            sf = list(map(mul,src_factor, self.fragments[i].color))
+            df = list(map(mul, dst_factor, self.frame_buffer.get_buffer()[ind[0]][ind[1]]))
+            self.fragments[i].color = list(map(add, sf, df))
         
     def src_blendfactor(self, src, frag):
-        if src == 'GL_ZERO':
+        if src == 'ZERO':
             src_blend_factor = [0,0,0,0]
-        elif src == 'GL_ONE':
+        elif src == 'ONE':
             src_blend_factor = [1,1,1,1]
-        elif src == 'GL_SRC_ALPHA':
+        elif src == 'SRC_ALPHA':
             src_blend_factor = [frag.color[3], frag.color[3],
                                 frag.color[3], frag.color[3]]
-        elif src == 'GL_ONE_MINUS_SRC_ALPHA':
+        elif src == 'ONE_MINUS_SRC_ALPHA':
             src_alpha = [frag.color[3], frag.color[3],
                          frag.color[3], frag.color[3]]
-            src_blend_factor = map(sub, [1,1,1,1], src_alpha)
-        elif src == 'GL_DST_ALPHA':
+            src_blend_factor = list(map(sub, [1,1,1,1], src_alpha))
+        elif src == 'DST_ALPHA':
             src_blend_factor = [self.frame_buffer.get_buffer()[i][3],
                             self.frame_buffer.get_buffer()[i][3],
                             self.frame_buffer.get_buffer()[i][3],
                             self.frame_buffer.get_buffer()[i][3]]
-        elif src == 'GL_ONE_MINUS_DST_ALPHA':
+        elif src == 'ONE_MINUS_DST_ALPHA':
             dst_alpha = [self.frame_buffer.get_buffer()[i][3],
                             self.frame_buffer.get_buffer()[i][3],
                             self.frame_buffer.get_buffer()[i][3],
                             self.frame_buffer.get_buffer()[i][3]]
-            src_blend_factor = map(sub, [1,1,1,1], dst_alpha)
-        elif src == 'GL_DST_COLOR':
+            src_blend_factor = list(map(sub, [1,1,1,1], dst_alpha))
+        elif src == 'DST_COLOR':
             src_blend_factor = self.frame_buffer.get_buffer()[i]
-        elif src == 'GL_ONE_MINUS_DST_COLOR':
-            src_blend_factor = map(sub, [1,1,1,1], self.frame_buffer.get_buffer()[i])
-        elif src == 'GL_SRC_ALPHA_SATURATE':
+        elif src == 'ONE_MINUS_DST_COLOR':
+            src_blend_factor = list(map(sub, [1,1,1,1], self.frame_buffer.get_buffer()[i]))
+        elif src == 'SRC_ALPHA_SATURATE':
             f = min(frag[3], 1 - self.frame_buffer.get_buffer()[i][3])
             src_blend_factor = [f, f, f, 1]
         return src_blend_factor
 
     def dst_blendfactor(self, dst, frag):
-        if dst == 'GL_SRC_COLOR':
+        if dst == 'SRC_COLOR':
             dst_blend_factor = frag.color[3]
-        elif dst == 'GL_ONE_MINUS_SRC_COLOR':
-            dst_blend_factor = map(sub, [1,1,1,1], frag.color[3])
-        elif dst == 'GL_ZERO':
+        elif dst == 'ONE_MINUS_SRC_COLOR':
+            dst_blend_factor = list(map(sub, [1,1,1,1], frag.color[3]))
+        elif dst == 'ZERO':
             dst_blend_factor = [0,0,0,0]
-        elif dst == 'GL_ONE':
+        elif dst == 'ONE':
             dst_blend_factor = [1,1,1,1]
-        elif dst == 'GL_SRC_ALPHA':
+        elif dst == 'SRC_ALPHA':
             dst_blend_factor = [frag.color[3], frag.color[3],
                                 frag.color[3], frag.color[3]]
-         elif dst == 'GL_ONE_MINUS_SRC_ALPHA':
+        elif dst == 'ONE_MINUS_SRC_ALPHA':
             src_alpha = [frag.color[3], frag.color[3],
                         frag.color[3], frag.color[3]]
-            dst_blend_factor = map(sub, [1,1,1,1], src_alpha)
-        elif dst == 'GL_DST_ALPHA':
+            dst_blend_factor = list(map(sub, [1,1,1,1], src_alpha))
+        elif dst == 'DST_ALPHA':
             dst_blend_factor = [self.frame_buffer.get_buffer()[i][3],
                                 self.frame_buffer.get_buffer()[i][3],
                                 self.frame_buffer.get_buffer()[i][3],
                                 self.frame_buffer.get_buffer()[i][3]]
-        elif dst == 'GL_ONE_MINUS_DST_ALPHA':
+        elif dst == 'ONE_MINUS_DST_ALPHA':
             dst_alpha = [self.frame_buffer.get_buffer()[i][3],
                         self.frame_buffer.get_buffer()[i][3],
                         self.frame_buffer.get_buffer()[i][3],
                         self.frame_buffer.get_buffer()[i][3]]
-            dst_blend_factor = map(sub, [1,1,1,1], dst_alpha)
+            dst_blend_factor = list(map(sub, [1,1,1,1], dst_alpha))
         return dst_blend_factor
 
     

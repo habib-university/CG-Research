@@ -1,10 +1,13 @@
+from fragment_processing import *
+
 class Fragment:
-    def __init__(self, pos, color, buffer_pos):
+    #def __init__(self, pos, color, buffer_pos):
+    def __init__(self, color, buffer_pos):
         #position on screen in NDC (between 1 and -1)
-        self.x = pos[0] 
-        self.y = pos[1]
-        self.z = pos[2]
-            self.buffer_pos = buffer_pos
+        #self.x = pos[0] 
+        #self.y = pos[1]
+        #self.z = pos[2]
+        self.buffer_pos = buffer_pos
         """
             Position will be a vec3 = (x,y,z) and color will be vec4 = (R,G,B,A)
             The interpolated attributes in the fragment includes color and
@@ -59,9 +62,6 @@ class Program:
         else:
             return 'Valid fragment shader not found'
 
-    def draw(self):
-        #get fragments after fragment processing
-        
+    def send_fragments(self):
+        #get fragments after fragment processing        
         self.buffer.set_pixels(self.frag_processing.get_fragments())        
-        pygame.surfarray.blit_array(screen, buffer.get_buffer())
-        

@@ -150,3 +150,9 @@ class Framebuffer:
     def get_buffer(self):
         return self.front_buffer
     
+    def set_pixels(self, fragments):
+        for i in range(len(fragments)):
+            pos = fragments[i].buffer_pos
+            self.front_buffer[pos[0]][pos[1]] = fragments[i].color[:3]
+        
+            
