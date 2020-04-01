@@ -1,9 +1,12 @@
+from fragment_processing import *
+
 class Fragment:
-    def __init__(self, pos, color, buffer_pos, depth):
+    #def __init__(self, pos, color, buffer_pos):
+    def __init__(self, color, buffer_pos):
         #position on screen in NDC (between 1 and -1)
-        self.x = pos[0] 
-        self.y = pos[1]
-        self.z = pos[2]
+        #self.x = pos[0] 
+        #self.y = pos[1]
+        #self.z = pos[2]
         self.buffer_pos = buffer_pos
         """
             Position will be a vec3 = (x,y,z) and color will be vec4 = (R,G,B,A)
@@ -11,13 +14,13 @@ class Fragment:
             texture. Right now we're only considering color.
         """
         self.color = color  #vec4
-        self.depth = depth
+        self.depth = False
 
 ##class Pixel:
 ##    def __init__(self, pos, color, depth):
 ##        self.buffer_position = pos
 ##        self.color = color
-#        self.depth = depth
+##        self.depth = depth
 
 class Fragment_Shader:
     def __init__(self, fragments):
@@ -33,9 +36,7 @@ class Fragment_Shader:
         for i in range(len(self.fragments)):
             self.fragments[i].color = self.frag_color
         return self.fragments
-    def set_depthVal(self, depth):
-        self.depth = depth
-        
+
 class Program:
     def __init__(self, screen, buffer):
         self.screen = screen
@@ -61,9 +62,6 @@ class Program:
         else:
             return 'Valid fragment shader not found'
 
-    def draw(self):
-        #get fragments after fragment processing
-        
+    def send_fragments(self):
+        #get fragments after fragment processing        
         self.buffer.set_pixels(self.frag_processing.get_fragments())        
-        pygame.surfarray.blit_array(screen, buffer.get_buffer())
-        
