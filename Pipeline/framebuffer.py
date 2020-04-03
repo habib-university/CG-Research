@@ -19,6 +19,7 @@ class Framebuffer:
         #two color buffers, front and back
         self.front_buffer = np.zeros((grid_width, grid_height, 3))
         self.back_buffer = np.zeros((grid_width, grid_height, 3))
+        self.depth_buffer = np.ones((grid_width,grid_height,1))
         self.visible = False
 
     def clear(self):
@@ -155,4 +156,12 @@ class Framebuffer:
             pos = fragments[i].buffer_pos
             self.front_buffer[pos[0]][pos[1]] = fragments[i].color[:3]
         
-            
+    def set_depth(self,pos,depth,color):
+        self.depth_buffer[pos[1]][pos[0]] = depth
+        self.front_buffer[pos[1]][pos[0]] = color
+        
+    def getdepthBuffer(self):
+        return self.depth_buffer
+    
+    def clear_depthBuffer(self):
+        self.depth_buffer = np.ones((grid_width,grid_height,1))

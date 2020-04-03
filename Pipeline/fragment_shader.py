@@ -14,7 +14,7 @@ class Fragment:
             texture. Right now we're only considering color.
         """
         self.color = color  #vec4
-        self.depth = False
+        self.depth = buffer_pos[2]
 
 ##class Pixel:
 ##    def __init__(self, pos, color, depth):
@@ -59,6 +59,9 @@ class Program:
                 self.frag_processing.alpha_test = True
             elif mode == 'blend':
                 self.frag_processing.blending = True
+            elif mode == 'depth':
+                self.frag_processing.depth_test = True
+                
         else:
             return 'Valid fragment shader not found'
 

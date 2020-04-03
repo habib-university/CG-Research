@@ -22,7 +22,7 @@ class Fragment_Processing:
         self.frame_buffer = frame_buffer
         self.alpha_test = False
         self.blending = False
-
+        self.depth_test = False
 ##    def pixel_ownership_test(self):
          
     def alpha_func(self, const, ref_val): #ref val will be between 0-255
@@ -140,8 +140,13 @@ class Fragment_Processing:
         return dst_blend_factor
 
     
-##    def depth_test(self):
-##    
-
+    def depth_func(self):
+        if self.depth_test == False:
+            return "Depth Test not Enabled"
+        else:
+            for i in range(len(self.fragments)):
+                if (self.fragments[i].depth < self.frame_buffer.getdepthBuffer()[self.fragments[i].buffer_pos[1]][self.fragments[i].buffer_pos[0]]):
+                    self.frame_buffer.set_depth(self.fragments[i].buffer_pos,self.fragments[i].depth, self.fragments[i].color)
+                    
     def get_fragments(self):
         return self.fragments
