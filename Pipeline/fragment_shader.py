@@ -54,16 +54,19 @@ class Program:
         if self.fragment_shader != None:
             self.frag_processing = Fragment_Processing(self.fragment_shader.get_fragments(),
                                                        self.buffer)
+            #print(self.buffer.get_buffer())
             if mode == 'alpha':
                 self.frag_processing.alpha_test = True
             elif mode == 'blend':
                 self.frag_processing.blending = True
             elif mode == 'depth':
+                #print(self.fragment_shader.get_fragments()[0].color)
                 self.frag_processing.depth_test = True
                 
         else:
             return 'Valid fragment shader not found'
 
     def send_fragments(self):
-        #get fragments after fragment processing        
+        #get fragments after fragment processing
+        print(self.frag_processing.get_fragments()[255].color)
         self.buffer.set_pixels(self.frag_processing.get_fragments())        

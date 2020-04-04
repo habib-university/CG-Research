@@ -23,18 +23,22 @@ def refresh_buffer(r, buffer):
 
 def buffer_to_fragments(buf, depth):
     fragments = []
-    print(depth)
+    #print(depth)
     for i in range(len(buf)):
         for j in range(len(buf[i])):
             color = [buf[i][j][0], buf[i][j][1], buf[i][j][2], alpha_values[i][j]]
             #fragments.append(Fragment(color, [i,j]))
+            #print(color)
             fragments.append(Fragment(color, [i,j,depth]))
     return fragments
 
 def update_fragments(buf, depth, fragments):
     for i in range(len(fragments)):
-        pos = fragments[i].buffer_pos
-        color = [pos[0], pos[1], pos[2], alpha_values[pos[0]][pos[1]]]
+        #y_pos = fragments[i].buffer_pos[1]
+        #x_pos = fragments[i].buffer_pos[0]
+        
+        color = [0, 0, 255, 255]
+        #print(depth)
         fragments[i].color = color
         fragments[i].depth = depth
     return fragments
@@ -45,7 +49,7 @@ def change_alpha(val):
     temp = np.zeros((255, 255), dtype=alpha_values.dtype)
     for i in range(len(val)):
         for j in range(len(val[i])):
-            temp[i][j] = 100
+            temp[i][j] = 255
     return temp
 
 if __name__=='__main__':
@@ -61,7 +65,7 @@ if __name__=='__main__':
     running = True
     refresh = False
     switch = False
-    d = 0.3
+    d = 0
     q = queue.Queue()
     frame_buffer = Framebuffer(width, height, margin, WIDTH, HEIGHT)
     alpha_values = []
@@ -73,14 +77,15 @@ if __name__=='__main__':
     #Below line is used only if screen switch is disabled
     frame_buffer.draw(white)
 
-    alpha = True
+    alpha = False
     alpha_values = pygame.surfarray.pixels_alpha(s)
     frags = buffer_to_fragments(frame_buffer.get_buffer(), d)
 
     #fragment shader
     fragment_shader = Fragment_Shader(frags)
-    fragment_shader.set_fragColor([255,0,0,255]) #red with low opacity
+    fragment_shader.set_fragColor([255,0,0,255]) 
     fragment_shader.run_shader()
+    #print(frame_buffer.get_buffer()) #buffer ok
     
     #program
     program = Program(screen, frame_buffer)
@@ -89,7 +94,8 @@ if __name__=='__main__':
     program.frag_processing.depth_func()
     #program.frag_processing.alpha_func('EQUAL', 255) 
     #program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
-    program.send_fragments()    
+    #program.send_fragments()    
+    #print(frame_buffer.get_buffer())
     
     #main loop
     while running:
@@ -104,13 +110,14 @@ if __name__=='__main__':
                 elif event.key == pygame.K_z:
                     print('changing screen')
                     frame_buffer.clear_colorBuffer()
-                    frame_buffer.clear_depthBuffer()
-                    frame_buffer.draw(blue)
-                    d = 0.1
+                    #frame_buffer.clear_depthBuffer()
+                    #frame_buffer.draw_plus(blue)
+                    d = 0.5
                     alpha_values = pygame.surfarray.pixels_alpha(s)
                     frags = update_fragments(frame_buffer.get_buffer(), d, program.frag_processing.get_fragments())
                     program.frag_processing.depth_func()
-                    program.send_fragments()
+                    #program.send_fragments()
+                    #print(frame_buffer.get_buffer())
 
         pygame.surfarray.blit_array(s, frame_buffer.get_buffer())
         if not alpha:
@@ -122,7 +129,7 @@ if __name__=='__main__':
             del alpha_values
             alpha = False
         screen.blit(s, (0,0))
-        
+##        
         pygame.display.update()
 
         if not p0.is_alive():

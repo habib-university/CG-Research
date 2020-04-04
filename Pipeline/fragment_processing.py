@@ -144,9 +144,35 @@ class Fragment_Processing:
         if self.depth_test == False:
             return "Depth Test not Enabled"
         else:
-            for i in range(len(self.fragments)):
-                if (self.fragments[i].depth < self.frame_buffer.getdepthBuffer()[self.fragments[i].buffer_pos[1]][self.fragments[i].buffer_pos[0]]):
-                    self.frame_buffer.set_depth(self.fragments[i].buffer_pos,self.fragments[i].depth, self.fragments[i].color)
+            #   print(self.fragments[5].color)
+            #print(self.frame_buffer.getdepthBuffer()[self.fragments[i].buffer_pos[1]][self.fragments[i].buffer_pos[0]])
             
+            depth_buf = self.frame_buffer.getdepthBuffer()
+            y = self.fragments[255].buffer_pos[1]
+            x = self.fragments[255].buffer_pos[0]
+
+            print('frag')
+            print(self.fragments[255].depth)
+            print(self.fragments[255].color)
+            
+            print('buffer')
+            print(depth_buf[y][x])
+            print(self.frame_buffer.get_buffer()[y][x])
+            print(bool(self.fragments[255].depth < depth_buf[y][x]))
+            color_buf = self.frame_buffer.get_buffer()
+            
+            for i in range(len(self.fragments)):
+                y = self.fragments[i].buffer_pos[1]
+                x = self.fragments[i].buffer_pos[0]
+                if self.fragments[i].depth < depth_buf[y][x]:
+                    #print(self.fragments[i].depth < depth_buf[y][x])
+                    self.frame_buffer.set_depth(self.fragments[i].buffer_pos, self.fragments[i].depth, self.fragments[i].color)
+                else:
+                    #print(color_buf[y][x])
+                    self.frame_buffer.set_depth(self.fragments[i].buffer_pos, self.fragments[i].depth, color_buf[y][x])
+##            print(self.fragments[255].depth)
+##            print(self.fragments[255].color)
+
+                    
     def get_fragments(self):
         return self.fragments

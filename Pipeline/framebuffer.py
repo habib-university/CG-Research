@@ -129,6 +129,7 @@ class Framebuffer:
                             self.front_buffer[105+n][155+j] = black
                             self.front_buffer[130+n][155+j] = black
                             self.front_buffer[155+n][155+j] = black
+
                        
     def enable_doubleBuffering(self):
         print('double buffering enabled')
@@ -154,10 +155,15 @@ class Framebuffer:
     def set_pixels(self, fragments):
         for i in range(len(fragments)):
             pos = fragments[i].buffer_pos
+            #print(self.front_buffer[pos[0]][pos[1]])
+            #if black != fragments[i].color[:3]:
             self.front_buffer[pos[0]][pos[1]] = fragments[i].color[:3]
         
     def set_depth(self,pos,depth,color):
         self.depth_buffer[pos[1]][pos[0]] = depth
+        #print(color)
+        #print(self.front_buffer[pos[1]][pos[0]])
+        #if black == list(self.front_buffer[pos[1]][pos[0]]):
         self.front_buffer[pos[1]][pos[0]] = color[:3]
         
     def getdepthBuffer(self):
