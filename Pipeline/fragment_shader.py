@@ -32,8 +32,10 @@ class Fragment_Shader:
         return self.fragments
 
     def run_shader(self):
-        for i in range(len(self.fragments)):
-            self.fragments[i].color = self.frag_color
+        ####only apply color to primitives
+        
+        #for a in range(len(self.fragments)):
+        #    self.fragments[a].color = self.frag_color
         return self.fragments
 
 class Program:
@@ -60,13 +62,19 @@ class Program:
             elif mode == 'blend':
                 self.frag_processing.blending = True
             elif mode == 'depth':
-                #print(self.fragment_shader.get_fragments()[0].color)
                 self.frag_processing.depth_test = True
                 
         else:
             return 'Valid fragment shader not found'
 
+    #should only be called within draw primitive functions
+    def update_fragments(self, frags):
+        if self.fragment_shader != None:
+            self.fragment_shader.fragments = frags
+        if self.frag_processing == None:
+            #print('hello')
+            self.buffer.set_pixels(frags)
+
     def send_fragments(self):
         #get fragments after fragment processing
-        print(self.frag_processing.get_fragments()[255].color)
         self.buffer.set_pixels(self.frag_processing.get_fragments())        

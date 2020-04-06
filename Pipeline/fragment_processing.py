@@ -23,7 +23,6 @@ class Fragment_Processing:
         self.alpha_test = False
         self.blending = False
         self.depth_test = False
-##    def pixel_ownership_test(self):
          
     def alpha_func(self, const, ref_val): #ref val will be between 0-255
         if not self.alpha_test:
@@ -32,42 +31,40 @@ class Fragment_Processing:
             if const == 'ALWAYS':
                 continue
             elif const == 'NEVER':
-                self.fragments[i].color = black
+                self.fragments[i].color = [0,0,0,255]
             elif const == 'LESS':
                 alpha_val = self.fragments[i].color[3] #alpha value of each fragment
                 if alpha_val >= ref_val:
-                    #self.fragments.remove(fragments[i]) #did not pass
-                    self.fragments[i].color = black
+                    self.fragments[i].color = [0,0,0,255]
             elif const == 'LEQUAL':
                 alpha_val = self.fragments[i].color[3] #alpha value of each fragment
                 if alpha_val > ref_val:
-                    #self.fragments.remove(fragments[i]) #did not pass
-                    self.fragments[i].color = black
+                    self.fragments[i].color = [0,0,0,255]
             elif const == 'GEQUAL':
                 alpha_val = self.fragments[i].color[3] #alpha value of each fragment
                 if alpha_val < ref_val: #if less, did not pass, else pass
-                    #self.fragments.remove(fragments[i])
-                    self.fragments[i].color = black
+                    self.fragments[i].color = [0,0,0,255]
             elif const == 'GREATER': #if frag value is greater than ref value, pass
                 alpha_val = self.fragments[i].color[3] #alpha value of each fragment
                 if alpha_val <= ref_val: #if less or equal, did not pass, else pass
-                    #self.fragments.remove(fragments[i])
-                    self.fragments[i].color = black
+                    self.fragments[i].color = [0,0,0,255]
             elif const == 'EQUAL':
                 alpha_val = self.fragments[i].color[3] #alpha value of each fragment
-                if alpha_val == ref_val:
-                    #self.fragments.remove(fragments[i]) #did not pass
-                    self.fragments[i].color = black
+                if alpha_val != ref_val:
+                    self.fragments[i].color = [0,0,0,255]
             elif const == 'NOTEQUAL':
                 alpha_val = self.fragments[i].color[3] #alpha value of each fragment
-                if alpha_val != ref_val:
-                    #self.fragments.remove(fragments[i]) #did not pass
-                    self.fragments[i].color = black
+                if alpha_val == ref_val:
+                    self.fragments[i].color = [0,0,0,255]
             else:
                 return 'Invalid value'
+        self.frame_buffer.set_pixels(self.fragments)
+        #self.frame_buffer.set_alpha(self.fragments)
         return self.fragments
             
     def blend_func(self, src, dst):
+        if not self.blending:
+            return 'Alpha test not enabled'
         for i in range(len(self.fragments)):
             src_factor = self.src_blendfactor(src, self.fragments[i])
             dst_factor = self.dst_blendfactor(dst, self.fragments[i])
@@ -144,35 +141,16 @@ class Fragment_Processing:
         if self.depth_test == False:
             return "Depth Test not Enabled"
         else:
-            #   print(self.fragments[5].color)
-            #print(self.frame_buffer.getdepthBuffer()[self.fragments[i].buffer_pos[1]][self.fragments[i].buffer_pos[0]])
-            
             depth_buf = self.frame_buffer.getdepthBuffer()
-            y = self.fragments[255].buffer_pos[1]
-            x = self.fragments[255].buffer_pos[0]
-
-            print('frag')
-            print(self.fragments[255].depth)
-            print(self.fragments[255].color)
-            
-            print('buffer')
-            print(depth_buf[y][x])
-            print(self.frame_buffer.get_buffer()[y][x])
-            print(bool(self.fragments[255].depth < depth_buf[y][x]))
             color_buf = self.frame_buffer.get_buffer()
-            
+  
             for i in range(len(self.fragments)):
                 y = self.fragments[i].buffer_pos[1]
                 x = self.fragments[i].buffer_pos[0]
-                if self.fragments[i].depth < depth_buf[y][x]:
-                    #print(self.fragments[i].depth < depth_buf[y][x])
+                if self.fragments[i].depth <= depth_buf[y][x]:
                     self.frame_buffer.set_depth(self.fragments[i].buffer_pos, self.fragments[i].depth, self.fragments[i].color)
                 else:
-                    #print(color_buf[y][x])
                     self.frame_buffer.set_depth(self.fragments[i].buffer_pos, self.fragments[i].depth, color_buf[y][x])
-##            print(self.fragments[255].depth)
-##            print(self.fragments[255].color)
 
-                    
     def get_fragments(self):
         return self.fragments

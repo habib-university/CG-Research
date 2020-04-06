@@ -20,6 +20,7 @@ class Framebuffer:
         self.front_buffer = np.zeros((grid_width, grid_height, 3))
         self.back_buffer = np.zeros((grid_width, grid_height, 3))
         self.depth_buffer = np.ones((grid_width,grid_height,1))
+        self.alpha = np.zeros((255, 255), dtype='uint8')
         self.visible = False
 
     def clear_colorBuffer(self):
@@ -40,6 +41,8 @@ class Framebuffer:
                     m += self.width + self.margin
 ###########TEST FUNCTIONS
     def draw(self, color):
+        temp = []
+        temp2 = []
         y_write = False
         n = self.margin
         for y in range(self.margin, self.grid_height-self.margin):
@@ -58,7 +61,17 @@ class Framebuffer:
                         self.back_buffer[y][x:x+self.width] = color
                     else:
                         self.front_buffer[y][x:x+self.width] = color
-            
+                        temp2.append((x, x+self.width))
+            temp.append((y, y+self.height))
+##        print('x values')
+##        temp2 = list(set(temp2))
+##        print(sorted(temp2, key=lambda element: (element[0], element[1])))
+##        
+##        print('y values')
+##        temp = list(set(temp))
+##        print(sorted(temp, key=lambda element: (element[0], element[1])))
+        
+        
     def draw_lines(self, color):
         y_write = False
         n = self.margin
@@ -155,15 +168,24 @@ class Framebuffer:
     def set_pixels(self, fragments):
         for i in range(len(fragments)):
             pos = fragments[i].buffer_pos
-            #print(self.front_buffer[pos[0]][pos[1]])
-            #if black != fragments[i].color[:3]:
             self.front_buffer[pos[0]][pos[1]] = fragments[i].color[:3]
+##            print(fragments[i].color)
+            self.alpha[pos[0]][pos[1]] = fragments[i].color[3]
+
+            
+##    def set_alpha(self, fragments):
+##        #temp = np.zeros((255, 255), dtype=alpha_values.dtype)
+##        for i in range(len(self.alpha)):
+##            for j in range(len(self.alpha[i])):
+##                
+##                self.alpha[i][j] = fragments[i].color[3]
+        
+    def get_alpha(self):
+        #print(self.alpha)
+        return self.alpha
         
     def set_depth(self,pos,depth,color):
         self.depth_buffer[pos[1]][pos[0]] = depth
-        #print(color)
-        #print(self.front_buffer[pos[1]][pos[0]])
-        #if black == list(self.front_buffer[pos[1]][pos[0]]):
         self.front_buffer[pos[1]][pos[0]] = color[:3]
         
     def getdepthBuffer(self):
