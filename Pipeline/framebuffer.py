@@ -169,16 +169,7 @@ class Framebuffer:
         for i in range(len(fragments)):
             pos = fragments[i].buffer_pos
             self.front_buffer[pos[0]][pos[1]] = fragments[i].color[:3]
-##            print(fragments[i].color)
             self.alpha[pos[0]][pos[1]] = fragments[i].color[3]
-
-            
-##    def set_alpha(self, fragments):
-##        #temp = np.zeros((255, 255), dtype=alpha_values.dtype)
-##        for i in range(len(self.alpha)):
-##            for j in range(len(self.alpha[i])):
-##                
-##                self.alpha[i][j] = fragments[i].color[3]
         
     def get_alpha(self):
         #print(self.alpha)

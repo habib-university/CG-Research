@@ -80,28 +80,24 @@ if __name__=='__main__':
     #program
     program = Program(screen, frame_buffer)
     program.attach_shader(fragment_shader)
-    #program.enable_test('blending')
-    #program.frag_processing.depth_func()
-    #program.frag_processing.alpha_func('EQUAL', 255) 
-    #program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
-    #program.send_fragments()    
-    #print(frame_buffer.get_buffer())
-
-
-    #it's changing the opacity of white not red
     
-    draw_point(program, 5, 5, 0, [255.0, 0.0, 0.0, 255.0]) #red color point
-    #program.enable_test('depth')
-    #program.frag_processing.alpha_func('NOTEQUAL', 255)
+    draw_point(program, 5, 5, 0, [255, 0, 0, 255]) #red color point
+    #draw_point(program, 5, 5, 0, [255, 255, 0, 255]) #yellow color point
+    #print(frame_buffer.get_buffer()[5][5])
+    program.enable_test('blend')
+    #program.frag_processing.alpha_func('EQUAL', 255)
     #program.frag_processing.depth_func()
-    #draw_point(program, 5, 5, 0, [0, 255, 0, 255]) #green color point 
+    #draw_point(program, 5, 5, 0.5, [0, 255, 255, 255]) #cyan color point
+    draw_point(program, 5, 5, 0, [0, 255, 0, 153]) #green color point
     #program.frag_processing.depth_func()
-    #program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
+    program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
 
+    pygame.surfarray.blit_array(s, frame_buffer.get_buffer())
     np.copyto(alpha_values, frame_buffer.get_alpha())
-    print(frame_buffer.get_buffer()[5][5])
     del alpha_values
     screen.blit(s, (0,0))
+    
+    
     
     #main loop
     while running:
@@ -144,21 +140,3 @@ if __name__=='__main__':
 ##            switch = True
 
     pygame.quit()
-
-
-
-
-    """
-    I have not yet combined the fragment processing and fragment shader
-    code with the main file. This is just an overview of how it should
-    be in main.py file.
-
-    
-    frag_shader = Fragment_Shader(frags)
-    frag_shader.set_fragColor([255,0,0,1])
-    frag_shader.run_shader()
-    program = Program()
-    program.attach_shader(fragment_shader)
-    #by default, all the fragment processing operations are disabled.
-    program.draw()
-    """

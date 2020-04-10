@@ -15,10 +15,12 @@
 from operator import add, sub, mul
 from framebuffer import Framebuffer
 from constants import *
+import numpy as np
 
 class Fragment_Processing:
     def __init__(self, fragments, frame_buffer):
         self.fragments = fragments #an array of fragments
+        self.frag01 = fragments
         self.frame_buffer = frame_buffer
         self.alpha_test = False
         self.blending = False
@@ -59,30 +61,36 @@ class Fragment_Processing:
             else:
                 return 'Invalid value'
         self.frame_buffer.set_pixels(self.fragments)
-        #self.frame_buffer.set_alpha(self.fragments)
         return self.fragments
-            
+        
     def blend_func(self, src, dst):
         if not self.blending:
             return 'Alpha test not enabled'
-        for i in range(len(self.fragments)):
-            src_factor = self.src_blendfactor(src, self.fragments[i])
-            dst_factor = self.dst_blendfactor(dst, self.fragments[i])
-            ###constant color for application specified colors
-            ###from programmable fragment shader
+        frags = self.fragments
+        for i in range(len(frags)):
             ind = self.fragments[i].buffer_pos
-            sf = list(map(mul,src_factor, self.fragments[i].color))
-            df = list(map(mul, dst_factor, self.frame_buffer.get_buffer()[ind[0]][ind[1]]))
-            self.fragments[i].color = list(map(add, sf, df))
+            buffer_color = [self.frame_buffer.get_buffer()[ind[0]][ind[1]][0],
+                            self.frame_buffer.get_buffer()[ind[0]][ind[1]][1],
+                            self.frame_buffer.get_buffer()[ind[0]][ind[1]][2],
+                            1]
+            buffer_color = convert_01(buffer_color)
+            src_factor = self.src_blendfactor(src, self.frag01[i].color, buffer_color)
+            dst_factor = self.dst_blendfactor(dst, self.frag01[i].color, buffer_color)
+            dst_factor = list(np.around(np.array(dst_factor),2))
+            sf = list(map(mul, src_factor, self.frag01[i].color))
+            df = list(map(mul, dst_factor, buffer_color))
+            final_color = list(map(add, sf, df))
+            frags[i].color = convert_255(final_color)
+        self.fragments = frags
+        self.frame_buffer.set_pixels(self.fragments)
         
-    def src_blendfactor(self, src, frag):
+    def src_blendfactor(self, src, frag, buffer_color):
         if src == 'ZERO':
             src_blend_factor = [0,0,0,0]
         elif src == 'ONE':
             src_blend_factor = [1,1,1,1]
         elif src == 'SRC_ALPHA':
-            src_blend_factor = [frag.color[3], frag.color[3],
-                                frag.color[3], frag.color[3]]
+            src_blend_factor = [frag[3], frag[3], frag[3], frag[3]]
         elif src == 'ONE_MINUS_SRC_ALPHA':
             src_alpha = [frag.color[3], frag.color[3],
                          frag.color[3], frag.color[3]]
@@ -104,10 +112,10 @@ class Fragment_Processing:
             src_blend_factor = list(map(sub, [1,1,1,1], self.frame_buffer.get_buffer()[i]))
         elif src == 'SRC_ALPHA_SATURATE':
             f = min(frag[3], 1 - self.frame_buffer.get_buffer()[i][3])
-            src_blend_factor = [f, f, f, 1]
+            src_blend_factor = [f, f, f, 1]  
         return src_blend_factor
 
-    def dst_blendfactor(self, dst, frag):
+    def dst_blendfactor(self, dst, frag, buffer_color):
         if dst == 'SRC_COLOR':
             dst_blend_factor = frag.color[3]
         elif dst == 'ONE_MINUS_SRC_COLOR':
@@ -120,8 +128,8 @@ class Fragment_Processing:
             dst_blend_factor = [frag.color[3], frag.color[3],
                                 frag.color[3], frag.color[3]]
         elif dst == 'ONE_MINUS_SRC_ALPHA':
-            src_alpha = [frag.color[3], frag.color[3],
-                        frag.color[3], frag.color[3]]
+            src_alpha = [frag[3], frag[3],
+                        frag[3], frag[3]]
             dst_blend_factor = list(map(sub, [1,1,1,1], src_alpha))
         elif dst == 'DST_ALPHA':
             dst_blend_factor = [self.frame_buffer.get_buffer()[i][3],
@@ -133,7 +141,7 @@ class Fragment_Processing:
                         self.frame_buffer.get_buffer()[i][3],
                         self.frame_buffer.get_buffer()[i][3],
                         self.frame_buffer.get_buffer()[i][3]]
-            dst_blend_factor = list(map(sub, [1,1,1,1], dst_alpha))
+            dst_blend_factor = list(map(sub, [1,1,1,1], dst_alpha)) 
         return dst_blend_factor
 
     
@@ -154,3 +162,17 @@ class Fragment_Processing:
 
     def get_fragments(self):
         return self.fragments
+
+    def set_fragments(self, frags):
+        self.fragments = frags
+
+def convert_01(val):
+    temp = []
+    for i in range(len(val)):
+        temp.append(round(val[i]/255, 5))
+    return temp
+    
+def convert_255(val):
+    for i in range(len(val)):
+        val[i] = round(val[i] * 255, 1)
+    return val

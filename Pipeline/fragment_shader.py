@@ -56,7 +56,6 @@ class Program:
         if self.fragment_shader != None:
             self.frag_processing = Fragment_Processing(self.fragment_shader.get_fragments(),
                                                        self.buffer)
-            #print(self.buffer.get_buffer())
             if mode == 'alpha':
                 self.frag_processing.alpha_test = True
             elif mode == 'blend':
@@ -71,10 +70,30 @@ class Program:
     def update_fragments(self, frags):
         if self.fragment_shader != None:
             self.fragment_shader.fragments = frags
+            #print('fragment shader ', self.fragment_shader.fragments[3580].color)
+            if self.frag_processing != None:
+                #self.frag_processing.fragments = self.fragment_shader.get_fragments()
+                self.frag_processing.set_fragments(self.convert_frags(frags))
+                #print('fragment processing ', self.frag_processing.fragments[3580].color)
+            
+            #print(frags[1300].color)
         if self.frag_processing == None:
             #print('hello')
             self.buffer.set_pixels(frags)
 
     def send_fragments(self):
         #get fragments after fragment processing
-        self.buffer.set_pixels(self.frag_processing.get_fragments())        
+        self.buffer.set_pixels(self.frag_processing.get_fragments())
+
+    def convert_frags(self, frags):
+        temp = frags
+        for i in range(len(temp)):
+            temp[i] = frags[i]
+            temp[i].color = self.convert_01(frags[i].color)
+        return temp
+
+    def convert_01(self,val):
+        temp = []
+        for i in range(len(val)):
+            temp.append(round(val[i]/255, 5))
+        return temp
