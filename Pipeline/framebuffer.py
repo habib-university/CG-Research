@@ -6,6 +6,7 @@ import asyncio
 import numpy as np
 import time
 from constants import *
+from helpers import *
 np.set_printoptions(threshold=sys.maxsize)
 
 class Framebuffer:
@@ -168,16 +169,23 @@ class Framebuffer:
     def set_pixels(self, fragments):
         for i in range(len(fragments)):
             pos = fragments[i].buffer_pos
-            self.front_buffer[pos[0]][pos[1]] = fragments[i].color[:3]
-            self.alpha[pos[0]][pos[1]] = fragments[i].color[3]
+            color = fragments[i].color
+##            color_bool = check_255(fragments[i].color)
+##            if not color_bool:
+##                color = convert_255(fragments[i].color)
+            self.front_buffer[pos[0]][pos[1]] = color[:3]
+            self.alpha[pos[0]][pos[1]] = color[3]
         
     def get_alpha(self):
-        #print(self.alpha)
         return self.alpha
         
     def set_depth(self,pos,depth,color):
-        self.depth_buffer[pos[1]][pos[0]] = depth
-        self.front_buffer[pos[1]][pos[0]] = color[:3]
+        self.depth_buffer[pos[0]][pos[1]] = depth
+        color_bool = check_255(color)
+        if not color_bool:
+            color = convert_255(color)
+        self.front_buffer[pos[0]][pos[1]] = color[:3]
+        self.alpha[pos[0]][pos[1]] = color[3]
         
     def getdepthBuffer(self):
         return self.depth_buffer

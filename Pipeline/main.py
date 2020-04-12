@@ -6,6 +6,7 @@ import numpy as np
 from framebuffer import Framebuffer
 from fragment_processing import *
 from fragment_shader import *
+from program import *
 from constants import *
 
 """
@@ -60,14 +61,14 @@ if __name__=='__main__':
 
     #thread for refreshing and switching buffers
     p0 = threading.Thread(target=refresh_buffer, name="r", args=(refresh, frame_buffer, ))
-    p1 = threading.Thread(target=frame_buffer.draw, name="r", args=(white,))
+    #p1 = threading.Thread(target=frame_buffer.draw, name="r", args=(white,))
     
-    #Below line is used only if screen switch is disabled
+    #Below three lines are uncommented only if screen switch is disabled
     frame_buffer.draw(white)
     pygame.surfarray.blit_array(s, frame_buffer.get_buffer())
     pygame.display.update()
     
-    #alpha = True
+    #get array for alpha values and fragments as input
     alpha_values = pygame.surfarray.pixels_alpha(s)
     frags = buffer_to_fragments(frame_buffer.get_buffer(), d)
 
@@ -76,32 +77,37 @@ if __name__=='__main__':
     fragment_shader.set_fragColor([255,0,0,255]) 
     fragment_shader.run_shader()
 
-
     #program
     program = Program(screen, frame_buffer)
     program.attach_shader(fragment_shader)
+
+"""
+blending = blend, depth test = depth, alpha test = alpha
+"""
     
-    draw_point(program, 5, 5, 0, [255, 0, 0, 255]) #red color point
+    draw_point(program, 5, 5, 0.5, [255, 0, 0, 255]) #red color point
     #draw_point(program, 5, 5, 0, [255, 255, 0, 255]) #yellow color point
-    #print(frame_buffer.get_buffer()[5][5])
+    program.enable_test('depth')
     program.enable_test('blend')
-    #program.frag_processing.alpha_func('EQUAL', 255)
+    
+    #program.frag_processing.alpha_func('GEQUAL', 155)
+    program.frag_processing.depth_func()
+    #draw_point(program, 5, 30, 0, [0, 255, 255, 20]) #cyan color point
     #program.frag_processing.depth_func()
-    #draw_point(program, 5, 5, 0.5, [0, 255, 255, 255]) #cyan color point
-    draw_point(program, 5, 5, 0, [0, 255, 0, 153]) #green color point
-    #program.frag_processing.depth_func()
-    program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
+    draw_point(program, 5, 5, 0, [0, 255, 0, 90]) #green color point
+    program.frag_processing.depth_func()
+    #program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
+
+    #program.frag_processing.alpha_func('LEQUAL', 255)
+
 
     pygame.surfarray.blit_array(s, frame_buffer.get_buffer())
     np.copyto(alpha_values, frame_buffer.get_alpha())
     del alpha_values
     screen.blit(s, (0,0))
     
-    
-    
     #main loop
     while running:
-        #s = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA, 32)
         for event in pygame.event.get():
             # check for closing window
             if event.type == pygame.QUIT:
@@ -110,21 +116,22 @@ if __name__=='__main__':
                 if event.key == pygame.K_d:
                     frame_buffer.enable_doubleBuffering()
 
-        pygame.display.update()
+        # if the refresh thread is not enabled then uncomment below line
+##        pygame.display.update()
 
-##        if not p0.is_alive():
-##            p0.start()
-##            p0.join(0.016)
-##            
+        if not p0.is_alive():
+            p0.start()
+            p0.join(0.016)
+            
 ##Comment p1 thread if screen switch disabled
 ##        if not p1.is_alive():
 ##            p1.start()
 ##            p1.join(0.058)
 ##        
-##        refresh = q.get()
-##        if p0.is_alive():
-##            p0.join()
-##        p0 = threading.Thread(target=refresh_buffer, name="r", args=(refresh, frame_buffer,))
+        refresh = q.get()
+        if p0.is_alive():
+            p0.join()
+        p0 = threading.Thread(target=refresh_buffer, name="r", args=(refresh, frame_buffer,))
 
 ##Comment the code below (before quit) if you want to disable screen switch
 ##        if p1.is_alive():

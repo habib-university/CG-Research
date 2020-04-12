@@ -15,6 +15,7 @@
 from operator import add, sub, mul
 from framebuffer import Framebuffer
 from constants import *
+from helpers import *
 import numpy as np
 
 class Fragment_Processing:
@@ -35,27 +36,27 @@ class Fragment_Processing:
             elif const == 'NEVER':
                 self.fragments[i].color = [0,0,0,255]
             elif const == 'LESS':
-                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
+                alpha_val = self.fragments[i].color[3] #alpha value
                 if alpha_val >= ref_val:
                     self.fragments[i].color = [0,0,0,255]
             elif const == 'LEQUAL':
-                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
+                alpha_val = self.fragments[i].color[3]
                 if alpha_val > ref_val:
                     self.fragments[i].color = [0,0,0,255]
             elif const == 'GEQUAL':
-                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
+                alpha_val = self.fragments[i].color[3] 
                 if alpha_val < ref_val: #if less, did not pass, else pass
                     self.fragments[i].color = [0,0,0,255]
             elif const == 'GREATER': #if frag value is greater than ref value, pass
-                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
-                if alpha_val <= ref_val: #if less or equal, did not pass, else pass
+                alpha_val = self.fragments[i].color[3] 
+                if alpha_val <= ref_val: 
                     self.fragments[i].color = [0,0,0,255]
             elif const == 'EQUAL':
-                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
+                alpha_val = self.fragments[i].color[3]
                 if alpha_val != ref_val:
                     self.fragments[i].color = [0,0,0,255]
             elif const == 'NOTEQUAL':
-                alpha_val = self.fragments[i].color[3] #alpha value of each fragment
+                alpha_val = self.fragments[i].color[3] 
                 if alpha_val == ref_val:
                     self.fragments[i].color = [0,0,0,255]
             else:
@@ -66,8 +67,7 @@ class Fragment_Processing:
     def blend_func(self, src, dst):
         if not self.blending:
             return 'Alpha test not enabled'
-        frags = self.fragments
-        for i in range(len(frags)):
+        for i in range(len(self.fragments)):
             ind = self.fragments[i].buffer_pos
             buffer_color = [self.frame_buffer.get_buffer()[ind[0]][ind[1]][0],
                             self.frame_buffer.get_buffer()[ind[0]][ind[1]][1],
@@ -80,8 +80,7 @@ class Fragment_Processing:
             sf = list(map(mul, src_factor, self.frag01[i].color))
             df = list(map(mul, dst_factor, buffer_color))
             final_color = list(map(add, sf, df))
-            frags[i].color = convert_255(final_color)
-        self.fragments = frags
+            self.fragments[i].color = convert_255(final_color)
         self.frame_buffer.set_pixels(self.fragments)
         
     def src_blendfactor(self, src, frag, buffer_color):
@@ -151,28 +150,17 @@ class Fragment_Processing:
         else:
             depth_buf = self.frame_buffer.getdepthBuffer()
             color_buf = self.frame_buffer.get_buffer()
-  
+            
             for i in range(len(self.fragments)):
                 y = self.fragments[i].buffer_pos[1]
                 x = self.fragments[i].buffer_pos[0]
                 if self.fragments[i].depth <= depth_buf[y][x]:
-                    self.frame_buffer.set_depth(self.fragments[i].buffer_pos, self.fragments[i].depth, self.fragments[i].color)
-                else:
-                    self.frame_buffer.set_depth(self.fragments[i].buffer_pos, self.fragments[i].depth, color_buf[y][x])
+                    self.frame_buffer.set_depth(self.fragments[i].buffer_pos,
+                                                self.fragments[i].depth,
+                                                self.fragments[i].color)
 
     def get_fragments(self):
         return self.fragments
 
     def set_fragments(self, frags):
         self.fragments = frags
-
-def convert_01(val):
-    temp = []
-    for i in range(len(val)):
-        temp.append(round(val[i]/255, 5))
-    return temp
-    
-def convert_255(val):
-    for i in range(len(val)):
-        val[i] = round(val[i] * 255, 1)
-    return val
