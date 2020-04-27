@@ -42,8 +42,6 @@ class Framebuffer:
                     m += self.width + self.margin
 ###########TEST FUNCTIONS
     def draw(self, color):
-        temp = []
-        temp2 = []
         y_write = False
         n = self.margin
         for y in range(self.margin, self.grid_height-self.margin):
@@ -62,17 +60,7 @@ class Framebuffer:
                         self.back_buffer[y][x:x+self.width] = color
                     else:
                         self.front_buffer[y][x:x+self.width] = color
-                        temp2.append((x, x+self.width))
-            temp.append((y, y+self.height))
-##        print('x values')
-##        temp2 = list(set(temp2))
-##        print(sorted(temp2, key=lambda element: (element[0], element[1])))
-##        
-##        print('y values')
-##        temp = list(set(temp))
-##        print(sorted(temp, key=lambda element: (element[0], element[1])))
-        
-        
+       
     def draw_lines(self, color):
         y_write = False
         n = self.margin
@@ -170,9 +158,9 @@ class Framebuffer:
         for i in range(len(fragments)):
             pos = fragments[i].buffer_pos
             color = fragments[i].color
-##            color_bool = check_255(fragments[i].color)
-##            if not color_bool:
-##                color = convert_255(fragments[i].color)
+            color_bool = check_255(fragments[i].color)
+            if not color_bool:
+                color = convert_255(fragments[i].color)
             self.front_buffer[pos[0]][pos[1]] = color[:3]
             self.alpha[pos[0]][pos[1]] = color[3]
         
@@ -185,7 +173,7 @@ class Framebuffer:
         if not color_bool:
             color = convert_255(color)
         self.front_buffer[pos[0]][pos[1]] = color[:3]
-        self.alpha[pos[0]][pos[1]] = color[3]
+        self.alpha[pos[0]][pos[1]] = color[3]            
         
     def getdepthBuffer(self):
         return self.depth_buffer

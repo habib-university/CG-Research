@@ -8,6 +8,7 @@ from fragment_processing import *
 from fragment_shader import *
 from program import *
 from constants import *
+from helpers import *
 
 """
     This file contains the code for main program running the graphics pipeline.
@@ -19,8 +20,15 @@ def refresh_buffer(r, buffer):
     elif not r:
         refresh = True
     q.put(refresh)
-    pygame.surfarray.blit_array(screen, buffer.get_buffer())   
-    pygame.display.update()
+##    pygame.surfarray.blit_array(screen, buffer.get_buffer())
+
+    screen.fill((0,0,0,255))
+    alpha = pygame.surfarray.pixels_alpha(s)
+    pygame.surfarray.blit_array(s, buffer.get_buffer())
+    np.copyto(alpha, buffer.get_alpha())
+    del alpha
+    screen.blit(s, (0,0))
+    pygame.display.update()  
 
 def buffer_to_fragments(buf, depth):
     fragments = []
@@ -40,6 +48,11 @@ def draw_point(prog, x, y, z, color):
         if (x_pos >= x and x_pos <= x_Limit) and (y_pos >= y and y_pos <= y_Limit):
             fragments[i].color = color
             fragments[i].depth = z
+        else:
+            color_bool = check_255(fragments[i].color)
+            if color_bool:
+                new_color = convert_01(fragments[i].color)
+                fragments[i].color = new_color
     prog.update_fragments(fragments)
 
 if __name__=='__main__':
@@ -81,25 +94,35 @@ if __name__=='__main__':
     program = Program(screen, frame_buffer)
     program.attach_shader(fragment_shader)
 
-"""
-blending = blend, depth test = depth, alpha test = alpha
-"""
+#blending = blend, depth test = depth, alpha test = alpha
     
-    draw_point(program, 5, 5, 0.5, [255, 0, 0, 255]) #red color point
-    #draw_point(program, 5, 5, 0, [255, 255, 0, 255]) #yellow color point
+    draw_point(program, 5, 5, 0, [1.0, 0.0, 0.0, 1])#red color point
+##    draw_point(program, 5, 5, 0, [1, 1, 0, 1]) #yellow color point
+    program.enable_test('alpha')
     program.enable_test('depth')
     program.enable_test('blend')
     
-    #program.frag_processing.alpha_func('GEQUAL', 155)
+    program.frag_processing.alpha_func('ALWAYS', 0.5)
     program.frag_processing.depth_func()
-    #draw_point(program, 5, 30, 0, [0, 255, 255, 20]) #cyan color point
-    #program.frag_processing.depth_func()
-    draw_point(program, 5, 5, 0, [0, 255, 0, 90]) #green color point
+
+##    draw_point(program, 5, 30, 0, [0, 1, 1, 0.5]) #cyan color point
+##    program.frag_processing.alpha_func('ALWAYS', 0.5)
+##    program.frag_processing.depth_func()
+    
+    draw_point(program, 5, 5, 0, [0.0, 1.0, 0.0, 0.58]) #green color point
+    program.frag_processing.alpha_func('ALWAYS', 0.5)
     program.frag_processing.depth_func()
-    #program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
+##    program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
+##
+##    program.frag_processing.alpha_func('EQUAL', 1)
+##    program.frag_processing.depth_func()
 
-    #program.frag_processing.alpha_func('LEQUAL', 255)
+    draw_point(program, 5, 55, 0.5, [1, 0, 1, 1]) #magenta point
+    program.frag_processing.alpha_func('ALWAYS', 1)
+    program.frag_processing.depth_func()
 
+    program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
+    
 
     pygame.surfarray.blit_array(s, frame_buffer.get_buffer())
     np.copyto(alpha_values, frame_buffer.get_alpha())
@@ -132,7 +155,7 @@ blending = blend, depth test = depth, alpha test = alpha
         if p0.is_alive():
             p0.join()
         p0 = threading.Thread(target=refresh_buffer, name="r", args=(refresh, frame_buffer,))
-
+        
 ##Comment the code below (before quit) if you want to disable screen switch
 ##        if p1.is_alive():
 ##            p1.join()
