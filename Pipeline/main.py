@@ -95,33 +95,33 @@ if __name__=='__main__':
     program.attach_shader(fragment_shader)
 
 #blending = blend, depth test = depth, alpha test = alpha
-    
-    draw_point(program, 5, 5, 0, [1.0, 0.0, 0.0, 1])#red color point
-##    draw_point(program, 5, 5, 0, [1, 1, 0, 1]) #yellow color point
     program.enable_test('alpha')
     program.enable_test('depth')
     program.enable_test('blend')
     
+    draw_point(program, 5, 5, 0, [1.0, 0.0, 0.0, 1])#red color point
+##    draw_point(program, 5, 5, 0, [1, 1, 0, 1]) #yellow color point
+    
     program.frag_processing.alpha_func('ALWAYS', 0.5)
     program.frag_processing.depth_func()
 
-##    draw_point(program, 5, 30, 0, [0, 1, 1, 0.5]) #cyan color point
-##    program.frag_processing.alpha_func('ALWAYS', 0.5)
-##    program.frag_processing.depth_func()
+    draw_point(program, 5, 30, 0, [0, 1, 1, 0.5]) #cyan color point
+    program.frag_processing.alpha_func('ALWAYS', 0.5)
+    program.frag_processing.depth_func()
     
     draw_point(program, 5, 5, 0, [0.0, 1.0, 0.0, 0.58]) #green color point
     program.frag_processing.alpha_func('ALWAYS', 0.5)
     program.frag_processing.depth_func()
-##    program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
+    program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
 ##
 ##    program.frag_processing.alpha_func('EQUAL', 1)
 ##    program.frag_processing.depth_func()
 
-    draw_point(program, 5, 55, 0.5, [1, 0, 1, 1]) #magenta point
-    program.frag_processing.alpha_func('ALWAYS', 1)
-    program.frag_processing.depth_func()
+##    draw_point(program, 5, 55, 0.5, [1, 0, 1, 1]) #magenta point
+##    program.frag_processing.alpha_func('ALWAYS', 1)
+##    program.frag_processing.depth_func()
 
-    program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
+##    program.frag_processing.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
     
 
     pygame.surfarray.blit_array(s, frame_buffer.get_buffer())

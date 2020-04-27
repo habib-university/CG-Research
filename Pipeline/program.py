@@ -21,28 +21,14 @@ class Program:
                 self.frag_processing = Fragment_Processing(self.fragment_shader.get_fragments(),
                                                        self.buffer)
             self.frag_processing.set_test(mode)
-##            if mode == 'alpha':
-##                self.frag_processing.alpha_test = True
-##            elif mode == 'blend':
-##                self.frag_processing.blending = True
-##            elif mode == 'depth':
-##                print(self.frag_processing.alpha_test)
-##                self.frag_processing.depth_test = True
-##                
         else:
             return 'Valid fragment shader not found'
 
     #should only be called within draw primitive functions
     def update_fragments(self, frags):
         if self.fragment_shader != None:
-            print('jello')
             self.fragment_shader.fragments = frags
-            
             if self.frag_processing != None:
-                print('hello')
-##                if self.frag_processing.blending:
-##                    self.frag_processing.set_fragments(self.convert_frags(frags))
-##                else:
                 self.frag_processing.set_fragments(frags)
         if self.frag_processing == None:
             self.buffer.set_pixels(frags)
