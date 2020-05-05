@@ -11,3 +11,7 @@
 ### Fragment Processing
 * Alpha/ depth/ blending tests
 * Passes fragments as pixels to buffer
+
+
+## Meeting Minutes
+### 5th May 2020
