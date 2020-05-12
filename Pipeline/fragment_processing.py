@@ -27,13 +27,13 @@ class Fragment_Processing:
         self.blending = False
         self.depth_test = False
 
-    def set_test(self, test):
+    def set_test(self, test, val):
         if test == 'alpha':
-            self.alpha_test = True
+            self.alpha_test = val
         if test == 'blend':
-            self.blending = True
+            self.blending = val
         if test == 'depth':
-            self.depth_test = True
+            self.depth_test = val
          
     def alpha_func(self, const, ref_val): #ref val will be between 0-255]
         if not self.alpha_test:
@@ -83,13 +83,14 @@ class Fragment_Processing:
             ind = self.fragments[i].buffer_pos
             buffer_color = [self.frame_buffer.get_buffer()[ind[0]][ind[1]][0],
                             self.frame_buffer.get_buffer()[ind[0]][ind[1]][1],
-                            self.frame_buffer.get_buffer()[ind[0]][ind[1]][2],
-                            1]
+                            self.frame_buffer.get_buffer()[ind[0]][ind[1]][2]]
             buffer_color = convert_01(buffer_color)
+            buf_alpha = round(self.frame_buffer.get_alpha()[ind[0]][ind[1]]/255, 5)
+            buffer_color = [buffer_color[0], buffer_color[1], buffer_color[2], buf_alpha]
             src_factor = self.src_blendfactor(src, self.fragments[i].color, buffer_color)
             dst_factor = self.dst_blendfactor(dst, self.fragments[i].color, buffer_color)
             sf = list(map(mul, src_factor, self.fragments[i].color))
-            df = list(map(mul, dst_factor, buffer_color))
+            df = list(map(mul, dst_factor, buffer_color))                    
             final_color = list(map(add, sf, df))
             self.fragments[i].color = convert_255(final_color)
         self.frame_buffer.set_pixels(self.fragments)
@@ -152,7 +153,7 @@ class Fragment_Processing:
             return "Depth Test not Enabled"
         else:
             depth_buf = self.frame_buffer.getdepthBuffer()
-            color_buf = self.frame_buffer.get_buffer()
+            #color_buf = self.frame_buffer.get_buffer()
             
             for i in range(len(self.fragments)):
                 y = self.fragments[i].buffer_pos[1]
@@ -162,6 +163,8 @@ class Fragment_Processing:
                         self.frame_buffer.set_depth(self.fragments[i].buffer_pos,
                                                 self.fragments[i].depth,
                                                 self.fragments[i].color)
+        #self.frame_buffer.clear_depthBuffer()
+        return self.fragments
 
     def get_fragments(self):
         return self.fragments

@@ -10,9 +10,9 @@ from helpers import *
 np.set_printoptions(threshold=sys.maxsize)
 
 class Framebuffer:
-    def __init__(self, width, height, margin, grid_width, grid_height):
-        self.width = width 
-        self.height = height
+    def __init__(self, block_size, margin, grid_width, grid_height):
+        self.width = block_size
+        self.height = block_size
         self.margin = margin
         self.grid_width = grid_width
         self.grid_height = grid_height
@@ -21,7 +21,7 @@ class Framebuffer:
         self.front_buffer = np.zeros((grid_width, grid_height, 3))
         self.back_buffer = np.zeros((grid_width, grid_height, 3))
         self.depth_buffer = np.ones((grid_width,grid_height,1))
-        self.alpha = np.zeros((255, 255), dtype='uint8')
+        self.alpha = np.zeros((grid_width, grid_height), dtype='uint8')
         self.visible = False
 
     def clear_colorBuffer(self):

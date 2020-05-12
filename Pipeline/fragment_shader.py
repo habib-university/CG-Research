@@ -25,16 +25,18 @@ class Fragment:
 class Fragment_Shader:
     def __init__(self, fragments):
         self.fragments = fragments
-
-    def set_fragColor(self, color):
-        self.frag_color = color
+        self.frag_color = black
+        self.uniforms = None
+        self.current_fragment = None
+        #frag coord and point coord - built in special variables for fragment shader (not needed for now)
 
     def get_fragments(self):
         return self.fragments
 
-    def run_shader(self):
-        ####only apply color to primitives
-        
-        #for a in range(len(self.fragments)):
-        #    self.fragments[a].color = self.frag_color
+    def run_shader(self, frags, f, *args):
+        for a in range(len(self.fragments)):
+            #self.current_fragment = self.fragments[a]
+            final_color = f(self.fragments[a].color, frags[a].color)
+            self.fragments[a].color = final_color #since we are not receiving any color rn
         return self.fragments
+        

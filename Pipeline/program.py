@@ -1,5 +1,7 @@
+import random
 from fragment_processing import *
 from fragment_shader import *
+from helpers import *
 
 class Program:
     def __init__(self, screen, buffer):
@@ -8,6 +10,11 @@ class Program:
         self.frag_processing = None
         self.vertex_shader = None
         self.fragment_shader = None
+        self.blend_src = None
+        self.blend_dst = None
+        self.alpha_const = None
+        self.alpha_ref = None
+        self.depth_test = False
 
     def attach_shader(self, shader):
         if isinstance(shader, Fragment_Shader):
@@ -16,32 +23,36 @@ class Program:
 ##            self.vertex_shader = shader
 
     def enable_test(self, mode):
-        if self.fragment_shader != None:
-            if self.frag_processing == None:
-                self.frag_processing = Fragment_Processing(self.fragment_shader.get_fragments(),
-                                                       self.buffer)
-            self.frag_processing.set_test(mode)
-        else:
-            return 'Valid fragment shader not found'
-
-    #should only be called within draw primitive functions
-    def update_fragments(self, frags):
-        if self.fragment_shader != None:
-            self.fragment_shader.fragments = frags
-            if self.frag_processing != None:
-                self.frag_processing.set_fragments(frags)
         if self.frag_processing == None:
-            self.buffer.set_pixels(frags)
+            self.frag_processing = Fragment_Processing(None,
+                                                       self.buffer)
+        self.frag_processing.set_test(mode, True)
+        
+    def disable_test(self, mode):
+        self.frag_processing.set_test(mode, False)
 
-    def send_fragments(self):
-        #get fragments after fragment processing
-        self.buffer.set_pixels(self.frag_processing.get_fragments())
+    #runs fragment processing stage
+    def run_fragProcessing(self, frags):
+        if self.frag_processing != None:
+            self.frag_processing.set_fragments(frags)
+            if self.frag_processing.alpha_test:
+                fragments = self.frag_processing.alpha_func(self.alpha_const, self.alpha_ref)
+                self.frag_processing.set_fragments(fragments)
+            if self.frag_processing.depth_test and self.depth_test:
+                fragments = self.frag_processing.depth_func()
+                self.frag_processing.set_fragments(fragments)
+            if self.frag_processing.blending:
+                self.frag_processing.blend_func(self.blend_src, self.blend_dst)
+        else:
+            self.buffer.set_pixels(frags)      
 
-    def convert_frags(self, frags):
-        temp = frags
-        for i in range(len(temp)):
-            temp[i] = frags[i]
-            temp[i].color = convert_01(frags[i].color)
-        return temp
+    def blend_func(self, src, dst):
+        self.blend_src = src
+        self.blend_dst = dst
 
+    def alpha_func(self, const, ref):
+        self.alpha_const = const
+        self.alpha_ref = ref
 
+    def depth_func(self):
+        self.depth_test = True
