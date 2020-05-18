@@ -110,7 +110,8 @@ def write_fragmentShader(fragColor, vColor, uniforms = None):
 
 if __name__=='__main__':
 
-    WIDTH, HEIGHT, block_size, margin = screen_resolution(10)
+    #screen_resolution(width, height)
+    WIDTH, HEIGHT, block_size, margin = screen_resolution(20, 10) 
 
     #initialize pygame
     pygame.init()

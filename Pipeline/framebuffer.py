@@ -44,7 +44,7 @@ class Framebuffer:
     def draw(self, color):
         y_write = False
         n = self.margin
-        for y in range(self.margin, self.grid_height-self.margin):
+        for y in range(self.margin, self.grid_width-self.margin):
             if y == n:
                 if not y_write:
                     n += self.width
@@ -53,7 +53,7 @@ class Framebuffer:
                     n += self.margin
                     y_write = False
             m = self.margin
-            for x in range(self.margin, self.grid_width-self.margin):
+            for x in range(self.margin, self.grid_height-self.margin):
                 if y_write and x == m:
                     m += self.width + self.margin
                     if self.double_buffer and not self.visible:

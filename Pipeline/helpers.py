@@ -26,9 +26,9 @@ def coordinate_conversion(x,y, block_size, margin):
         new_coord[1] += ((block_size + margin) * y)
     return new_coord
 
-def screen_resolution(resolution, block_size = 20, margin = 5):
-    w = (resolution * block_size) + (resolution * margin) + margin
-    h = (resolution * block_size) + (resolution * margin) + margin
+def screen_resolution(width, height, block_size = 20, margin = 5):
+    w = (width * block_size) + (width * margin) + margin
+    h = (height * block_size) + (height * margin) + margin
     return w, h, block_size, margin
 
 ##print(check_255([0,1,0,0]))
