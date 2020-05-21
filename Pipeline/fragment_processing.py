@@ -153,7 +153,6 @@ class Fragment_Processing:
             return "Depth Test not Enabled"
         else:
             depth_buf = self.frame_buffer.getdepthBuffer()
-            #color_buf = self.frame_buffer.get_buffer()
             
             for i in range(len(self.fragments)):
                 y = self.fragments[i].buffer_pos[1]
@@ -163,7 +162,6 @@ class Fragment_Processing:
                         self.frame_buffer.set_depth(self.fragments[i].buffer_pos,
                                                 self.fragments[i].depth,
                                                 self.fragments[i].color)
-        #self.frame_buffer.clear_depthBuffer()
         return self.fragments
 
     def get_fragments(self):

@@ -31,6 +31,4 @@ def screen_resolution(width, height, block_size = 20, margin = 5):
     h = (height * block_size) + (height * margin) + margin
     return w, h, block_size, margin
 
-##print(check_255([0,1,0,0]))
-
 
