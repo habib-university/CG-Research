@@ -1,10 +1,12 @@
 import random
 from fragment_processing import *
 from fragment_shader import *
+from rasterizer import *
 from helpers import *
+from main import write_fragmentShader
 
 class Program:
-    def __init__(self, screen, buffer):
+    def __init__(self, screen, buffer, blank_frags):
         self.screen = screen
         self.buffer = buffer
         self.frag_processing = None
@@ -15,10 +17,14 @@ class Program:
         self.alpha_const = None
         self.alpha_ref = None
         self.depth_test = False
+        self.blank_frags = blank_frags
+        self.rasterizer = Rasterizer(blank_frags)
+        self.fragments = None
 
     def attach_shader(self, shader):
         if isinstance(shader, Fragment_Shader):
             self.fragment_shader = shader
+            #self.rasterizer.set_color = self.fragment_shader.get_fragColor()
 ##        elif isinstance(shader, Vertex_Shader):
 ##            self.vertex_shader = shader
 
@@ -56,3 +62,23 @@ class Program:
 
     def depth_func(self):
         self.depth_test = True
+
+    def send_vertices_data(self, vertices):
+        self.rasterizer.set_vertices(vertices)
+    
+    def send_color_data(self, colors = None):
+        self.rasterizer.set_colors(colors)
+
+    def draw_arrays(self, mode, first, count):
+        #mode = primitive type, first = starting index, count = no. of vertices to be rendered
+        if mode == "POINT":
+            self.rasterizer.draw_point(first, count)
+
+    def run_fragment_shader(self):
+        frags = self.rasterizer.get_fragments()
+        self.fragment_shader.set_blankFrags(self.blank_frags)
+        self.fragment_shader.run_shader(frags, write_fragmentShader)
+        self.fragments = self.fragment_shader.get_fragments()
+    
+    def get_fragments(self):
+        return self.fragments

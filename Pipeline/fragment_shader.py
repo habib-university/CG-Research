@@ -15,28 +15,31 @@ class Fragment:
         """
         self.color = color  #vec4
         self.depth = buffer_pos[2]
-
-##class Pixel:
-##    def __init__(self, pos, color, depth):
-##        self.buffer_position = pos
-##        self.color = color
-##        self.depth = depth
+        self.is_color = False
 
 class Fragment_Shader:
-    def __init__(self, fragments):
+    def __init__(self, fragments=None):
         self.fragments = fragments
         self.frag_color = black
         self.uniforms = None
         self.current_fragment = None
+        self.colors = None
         #frag coord and point coord - built in special variables for fragment shader (not needed for now)
 
     def get_fragments(self):
         return self.fragments
 
+    def get_fragColor(self):
+        return self.frag_color
+    
+    def set_blankFrags(self, blank_frags):
+        self.fragments = blank_frags
+
+
     def run_shader(self, frags, f, *args):
+        final_color = self.frag_color
         for a in range(len(self.fragments)):
-            #self.current_fragment = self.fragments[a]
-            final_color = f(self.fragments[a].color, frags[a].color)
-            self.fragments[a].color = final_color #since we are not receiving any color rn
-        return self.fragments
-        
+            if frags[a].is_color:
+                final_color = f(self.fragments[a].color, frags[a].color)
+                self.fragments[a].color = final_color #Apply the final color given in fragment shader
+        #self.frag_color = final_color #if constant color is given in programmable fragment shader

@@ -35,24 +35,6 @@ def buffer_to_fragments(buf, depth):
             fragments.append(Fragment(color, [i,j,depth]))
     return fragments
 
-def render(program, fragments=None):
-    #blending = blend, depth test = depth, alpha test = alpha
-
-    render.fragments = fragments #do not change this line!
-
-    render.fragments = draw_point(program, 2, 0, 0, [1.0, 0.0, 0.0, 1])#red color point
-    render.fragments = draw_point(program, 2, 1, 0, [1.0, 0.0, 0.0, 0.9])
-    render.fragments =draw_point(program, 2, 2, 0, [1.0, 0.0, 0.0, 0.8])
-    render.fragments =draw_point(program, 2, 3, 0, [1.0, 0.0, 0.0, 0.7])
-    render.fragments =draw_point(program, 2, 4, 0, [1.0, 0.0, 0.0, 0.6])
-    render.fragments =draw_point(program, 2, 5, 0, [1.0, 0.0, 0.0, 0.5])
-    render.fragments =draw_point(program, 2, 6, 0, [1.0, 0.0, 0.0, 0.4])#red color point
-    render.fragments =draw_point(program, 2, 7, 0, [1.0, 0.0, 0.0, 0.3])
-    render.fragments =draw_point(program, 2, 8, 0, [1.0, 0.0, 0.0, 0.2])
-    render.fragments =draw_point(program, 2, 9, 0, [1.0, 0.0, 0.0, 0])
-    
-    return render.fragments
-
 def render2(program, fragments=None):
     render.fragments = fragments #do not change this line!
 
@@ -70,32 +52,22 @@ def render2(program, fragments=None):
     
     program.blend_func('SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA')
     return render.fragments
-            
-def draw_point(prog, x, y, z, color):
-    fragments = render.fragments
-    new_coord = coordinate_conversion(x,y, block_size, margin)
-    x = new_coord[0]
-    y = new_coord[1]
-    x_Limit = x + block_size
-    y_Limit = y + block_size
-    for i in range(len(fragments)):
-        x_pos = fragments[i].buffer_pos[0]
-        y_pos = fragments[i].buffer_pos[1]
-        
-        if (x_pos >= x and x_pos <= x_Limit) and (y_pos >= y and y_pos <= y_Limit):
-            if fragments[i].color == [255, 255, 255, 255] or fragments[i].color == [1,1,1,1]:
-                fragments[i].color = color
-                fragments[i].depth = z
-            else:
-                pos = [fragments[i].buffer_pos[0], fragments[i].buffer_pos[1], z]
-                fragments.append(Fragment(color, pos))
-        else:
-            color_bool = check_255(fragments[i].color)
-            if color_bool:
-                new_color = convert_01(fragments[i].color)
-                fragments[i].color = new_color
-    return fragments
 
+def render(program, fragments=None):
+    #blending = blend, depth test = depth, alpha test = alpha
+    program.draw_arrays("POINT", 0, 6)
+
+def user_program(program):
+    #screen_resolution(10,10)
+    #program = Program()
+    fragment_shader = Fragment_Shader()
+    program.attach_shader(fragment_shader)
+    vertices = [(2,0,0), (2,1,0), (2,2,0), (2,3,0), (2,4,0), (2,5,0)]
+    program.send_vertices_data(vertices)
+    colors = [[1,0,0,1], [0,1,0,1], [0,0,1,1], [1,1,0,1], [0,1,1,1], [1,0,1,1]]
+    program.send_color_data(colors)
+    render(program)
+  
 def write_fragmentShader(fragColor, vColor, uniforms = None):
     #varying vColor
     #uniform something
@@ -105,6 +77,7 @@ def write_fragmentShader(fragColor, vColor, uniforms = None):
     #differently. For now we just assign color
 
     fragColor = vColor
+    #fragColor = [1, 0, 0, 1] #red
 
     return fragColor
 
@@ -140,11 +113,21 @@ if __name__=='__main__':
     alpha_values = pygame.surfarray.pixels_alpha(s)
     blank_frags = buffer_to_fragments(frame_buffer.get_buffer(), d)
 
-    program = Program(screen, frame_buffer)
-    frags = render(program, blank_frags)
-    fragment_shader = Fragment_Shader(blank_frags)
-    program.attach_shader(fragment_shader)
-    frags = fragment_shader.run_shader(frags, write_fragmentShader)
+    """ program = Program(screen, frame_buffer, blank_frags)
+    user_program(program)
+    #frags = render(program, blank_frags)
+    frags = program.rasterizer.get_fragments()
+    program.fragment_shader.set_blankFrags(blank_frags)
+    #fragment_shader = Fragment_Shader(blank_frags)
+    #program.attach_shader(fragment_shader)
+    frags = program.fragment_shader.run_shader(frags, write_fragmentShader)
+    program.run_fragProcessing(frags)
+    """
+
+    program = Program(screen, frame_buffer, blank_frags)
+    user_program(program)
+    program.run_fragment_shader()
+    frags = program.get_fragments()
     program.run_fragProcessing(frags)
 
     #if we want to use blending
@@ -157,17 +140,16 @@ if __name__=='__main__':
     del alpha_values
     screen.blit(s, (0,0))
     
-    #main loop
+    #Main loop
     while running:
         for event in pygame.event.get():
-            # check for closing window
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_d:
                     frame_buffer.enable_doubleBuffering()
 
-        # if the refresh thread is not enabled then uncomment below line
+##If the refresh thread is not enabled then uncomment below line
 ##        pygame.display.update()
 
         if not p0.is_alive():
