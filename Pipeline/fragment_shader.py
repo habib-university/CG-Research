@@ -35,11 +35,9 @@ class Fragment_Shader:
     def set_blankFrags(self, blank_frags):
         self.fragments = blank_frags
 
-
     def run_shader(self, frags, f, *args):
         final_color = self.frag_color
         for a in range(len(self.fragments)):
             if frags[a].is_color:
                 final_color = f(self.fragments[a].color, frags[a].color)
-                self.fragments[a].color = final_color #Apply the final color given in fragment shader
-        #self.frag_color = final_color #if constant color is given in programmable fragment shader
+                self.fragments[a].color = final_color #Apply the final color passed through fragment shader

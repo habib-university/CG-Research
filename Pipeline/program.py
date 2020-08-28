@@ -3,7 +3,7 @@ from fragment_processing import *
 from fragment_shader import *
 from rasterizer import *
 from helpers import *
-from main import write_fragmentShader
+from user_program import write_fragmentShader
 
 class Program:
     def __init__(self, screen, buffer, blank_frags):
@@ -24,7 +24,6 @@ class Program:
     def attach_shader(self, shader):
         if isinstance(shader, Fragment_Shader):
             self.fragment_shader = shader
-            #self.rasterizer.set_color = self.fragment_shader.get_fragColor()
 ##        elif isinstance(shader, Vertex_Shader):
 ##            self.vertex_shader = shader
 
@@ -73,6 +72,8 @@ class Program:
         #mode = primitive type, first = starting index, count = no. of vertices to be rendered
         if mode == "POINT":
             self.rasterizer.draw_point(first, count)
+        elif mode == "LINE":
+            self.rasterizer.draw_line(first, count)
 
     def run_fragment_shader(self):
         frags = self.rasterizer.get_fragments()

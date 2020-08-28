@@ -2,7 +2,7 @@ from bressenham import *
 from primitiveClass import *
 def checkBresenham():
     print(BresLineAlgorithm(20,10,30,18))
-#checkBresenham()
+checkBresenham()
 
 def checkLineFunctions():
     ##line=Line()
@@ -28,4 +28,4 @@ def checkClockwise():
     tri.printTriArray()
     #tri.GL_TRIANGLE_FAN(vertices)
     #tri.printTriArray()
-checkClockwise()
+#checkClockwise()
