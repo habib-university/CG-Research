@@ -1,19 +1,17 @@
 import pygame
-import sys
-import time
 import threading, queue
 import numpy as np
 import user_program
 from framebuffer import Framebuffer
-from fragment_shader import *
-from program import *
+from fragment import Fragment
+from program import Program
 from constants import *
-from helpers import *
 
 """
     This file contains the code for main program running the graphics pipeline.
 """
 
+#function used in refresh thread
 def refresh_buffer(r, buffer):
     if r:
         refresh = False
@@ -28,15 +26,6 @@ def refresh_buffer(r, buffer):
     screen.blit(s, (0,0))
     pygame.display.update()  
 
-def buffer_to_fragments(buf, depth):
-    fragments = []
-    for i in range(len(buf)):
-        for j in range(len(buf[i])):
-            color = [buf[i][j][0], buf[i][j][1], buf[i][j][2], alpha_values[i][j]]
-            fragments.append(Fragment(color, [i,j,depth]))
-    return fragments
-
-
 if __name__=='__main__':
 
     #init user program
@@ -47,7 +36,7 @@ if __name__=='__main__':
     #initialize pygame
     pygame.init()
     screen = pygame.display.set_mode((WIDTH,HEIGHT))
-    pygame.display.set_caption("Grid")
+    pygame.display.set_caption("Screen")
     s = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA, 32)
     
     #initialize variables
@@ -63,20 +52,21 @@ if __name__=='__main__':
     #p1 = threading.Thread(target=frame_buffer.draw, name="r", args=(white,))
     
     #Below three lines are uncommented only if screen switch is disabled
-    frame_buffer.draw(white)
+    frame_buffer.draw(black)
     pygame.surfarray.blit_array(s, frame_buffer.get_buffer())
     pygame.display.update()
     
-    #get array for alpha values and fragments as input
+    #get array for alpha values and create blank fragments from buffer
     alpha_values = pygame.surfarray.pixels_alpha(s)
-    blank_frags = buffer_to_fragments(frame_buffer.get_buffer(), d)
-
-    program = Program(screen, frame_buffer, blank_frags)
+    
+    #get the programmable user program and run it
+    program = Program(screen, frame_buffer)
     user_program.main_program(program)
     program.run_fragment_shader()
     frags = program.get_fragments()
-    program.run_fragProcessing(frags)
+    program.run_fragProcessing(frags) #fragment processing stage sets pixels directly in buffer
 
+    #display on screen
     pygame.surfarray.blit_array(s, frame_buffer.get_buffer())
     np.copyto(alpha_values, frame_buffer.get_alpha())
     del alpha_values

@@ -1,12 +1,10 @@
 """
-    This file represents a class for frame buffer object.
+    This file represents a class for framebuffer object.
 """
-import sys
-import asyncio
+
 import numpy as np
-import time
-from helpers import *
-np.set_printoptions(threshold=sys.maxsize)
+import helpers
+from constants import white, black, green
 
 class Framebuffer:
     def __init__(self, block_size, margin, grid_width, grid_height):
@@ -23,7 +21,8 @@ class Framebuffer:
         self.alpha = np.zeros((grid_width, grid_height), dtype='uint8')
         self.visible = False
 
-    def clear_colorBuffer(self):
+    def clear_colorBuffer(self, color):
+        color = helpers.convert_255(color[:3])
         y_write = False
         n = self.margin
         for y in range(self.margin, self.grid_height-self.margin):
@@ -37,10 +36,12 @@ class Framebuffer:
             m = self.margin
             for x in range(self.margin, self.grid_width-self.margin):
                 if y_write and x == m:
-                    self.front_buffer[y][x:x+self.width] = white
+                    self.front_buffer[y][x:x+self.width] = color
                     m += self.width + self.margin
-###########TEST FUNCTIONS
+                    
+#TEST FUNCTIONS FOR DIFFERENT SCREENS DIRECTLY FROM BUFFER
     def draw(self, color):
+        color = helpers.convert_255(color[:3])
         y_write = False
         n = self.margin
         for y in range(self.margin, self.grid_width-self.margin):
@@ -153,13 +154,18 @@ class Framebuffer:
     def get_buffer(self):
         return self.front_buffer
     
+    def set_alpha(self, val):
+        for y in range(self.grid_height):
+            for x in range(self.grid_width):
+                self.alpha[y][x] = val
+    
     def set_pixels(self, fragments):
         for i in range(len(fragments)):
             pos = fragments[i].buffer_pos
             color = fragments[i].color
-            color_bool = check_255(fragments[i].color)
+            color_bool = helpers.check_255(fragments[i].color)
             if not color_bool:
-                color = convert_255(fragments[i].color)
+                color = helpers.convert_255(fragments[i].color)
             self.front_buffer[pos[0]][pos[1]] = color[:3]
             self.alpha[pos[0]][pos[1]] = color[3]
         
@@ -168,9 +174,9 @@ class Framebuffer:
         
     def set_depth(self,pos,depth,color):
         self.depth_buffer[pos[0]][pos[1]] = depth
-        color_bool = check_255(color)
+        color_bool = helpers.check_255(color)
         if not color_bool:
-            color = convert_255(color)
+            color = helpers.convert_255(color)
         self.front_buffer[pos[0]][pos[1]] = color[:3]
         self.alpha[pos[0]][pos[1]] = color[3]            
         

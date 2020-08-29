@@ -1,30 +1,14 @@
-from fragment_processing import *
-from helpers import *
-
-class Fragment:
-    def __init__(self, color, buffer_pos):
-        #position on screen in NDC (between 1 and -1)
-        #self.x = pos[0] 
-        #self.y = pos[1]
-        #self.z = pos[2]
-        self.buffer_pos = buffer_pos
-        """
-            Position will be a vec3 = (x,y,z) and color will be vec4 = (R,G,B,A)
-            The interpolated attributes in the fragment includes color and
-            texture. Right now we're only considering color.
-        """
-        self.color = color  #vec4
-        self.depth = buffer_pos[2]
-        self.is_color = False
+"""
+    This file contains code for fragment shader stage of the pipeline.
+    It sets colors according to the value specified in the programmable fragment shader.
+"""
 
 class Fragment_Shader:
     def __init__(self, fragments=None):
         self.fragments = fragments
-        self.frag_color = black
+        self.frag_color = [0,0,0,1] #if nothing is specified, render black
         self.uniforms = None
-        self.current_fragment = None
-        self.colors = None
-        #frag coord and point coord - built in special variables for fragment shader (not needed for now)
+        #point coord - built in special variable for fragment shader (not needed for now)
 
     def get_fragments(self):
         return self.fragments
@@ -32,7 +16,7 @@ class Fragment_Shader:
     def get_fragColor(self):
         return self.frag_color
     
-    def set_blankFrags(self, blank_frags):
+    def set_blankFrags(self, blank_frags): #set fragments array for output
         self.fragments = blank_frags
 
     def run_shader(self, frags, f, *args):

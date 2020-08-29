@@ -1,27 +1,20 @@
 """
-    There maybe multiple fragments generated for a pixel if there is
-    multisampling or the use of textures. For our purposes here, we are
-    assuming there are no samplers or textures, so one fragment represents
-    one pixel.
+    This file implements the fragment processing stage of the pipeline.
+    In this stage, discard tests are performed which modify the final render.
 
-    In this case, fragment = pixel (which is how it is in OpenGL. In WebGL,
-    there are different objects for fragment and pixel. However,
-    they're almost the same, with the exception of some attributes.
-
+    Note:
     Alpha test is implemented, however it is deprecated in webGL.
     Similar functionality can be obtained by adding conditionals in the
     fragment shader.
 """
+import helpers
+import numpy as np
 from operator import add, sub, mul
 from framebuffer import Framebuffer
-from constants import *
-from helpers import *
-import numpy as np
 
 class Fragment_Processing:
     def __init__(self, fragments, frame_buffer):
         self.fragments = fragments #an array of fragments
-        self.frag01 = fragments
         self.frame_buffer = frame_buffer
         self.alpha_test = False
         self.blending = False
@@ -35,7 +28,7 @@ class Fragment_Processing:
         if test == 'depth':
             self.depth_test = val
          
-    def alpha_func(self, const, ref_val): #ref val will be between 0-255]
+    def alpha_func(self, const, ref_val): #const = test, ref = value against which to be tested
         if not self.alpha_test:
             return 'Alpha test not enabled'
         for i in range(len(self.fragments)):
@@ -84,7 +77,7 @@ class Fragment_Processing:
             buffer_color = [self.frame_buffer.get_buffer()[ind[0]][ind[1]][0],
                             self.frame_buffer.get_buffer()[ind[0]][ind[1]][1],
                             self.frame_buffer.get_buffer()[ind[0]][ind[1]][2]]
-            buffer_color = convert_01(buffer_color)
+            buffer_color = helpers.convert_01(buffer_color)
             buf_alpha = round(self.frame_buffer.get_alpha()[ind[0]][ind[1]]/255, 5)
             buffer_color = [buffer_color[0], buffer_color[1], buffer_color[2], buf_alpha]
             src_factor = self.src_blendfactor(src, self.fragments[i].color, buffer_color)
@@ -92,7 +85,7 @@ class Fragment_Processing:
             sf = list(map(mul, src_factor, self.fragments[i].color))
             df = list(map(mul, dst_factor, buffer_color))                    
             final_color = list(map(add, sf, df))
-            self.fragments[i].color = convert_255(final_color)
+            self.fragments[i].color = helpers.convert_255(final_color)
         self.frame_buffer.set_pixels(self.fragments)
         
     def src_blendfactor(self, src, frag, buffer_color):

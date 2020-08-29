@@ -1,3 +1,17 @@
+"""
+    This file contains the helper functions which are used in different classes at different parts
+    of the program.
+"""
+from fragment import Fragment
+
+def buffer_to_fragments(buf, depth, alpha_values):
+    fragments = []
+    for i in range(len(buf)):
+        for j in range(len(buf[i])):
+            color = [buf[i][j][0], buf[i][j][1], buf[i][j][2], alpha_values[i][j]]
+            fragments.append(Fragment(color, [i,j,depth]))
+    return fragments
+
 def convert_01(val):
     temp = []
     for i in range(len(val)):

@@ -1,8 +1,16 @@
-from helpers import *
-from constants import *
-from fragment_shader import *
+"""
+    This file contains primitive classes (point and line).
+    Primitive is tha parent class whose child classes are Point and Line.
+    These classes implement the algorithms required to find which fragments would be rendered,
+    apply color and return the fragments with that information.
+"""
+
+import helpers
+from constants import block_size, margin
+from fragment import Fragment
 from abc import ABCMeta, abstractmethod
 
+#Parent primitive class
 class Primitive(metaclass=ABCMeta):
     @abstractmethod
     def draw(self, fragments):
@@ -24,6 +32,7 @@ class Point(Primitive):
             x_pos = fragments[i].buffer_pos[0]
             y_pos = fragments[i].buffer_pos[1]
             
+            #Check if fragment is the point, then apply color and depth
             if (x_pos >= self.x and x_pos <= x_Limit) and (y_pos >= self.y and y_pos <= y_Limit):
                 fragments[i].is_color = True
                 if fragments[i].color == [255, 255, 255, 255] or fragments[i].color == [1,1,1,1]:
@@ -34,9 +43,9 @@ class Point(Primitive):
                     fragments.append(Fragment(self.color, pos))
                     fragments[-1].is_color = True
             else:
-                color_bool = check_255(fragments[i].color)
+                color_bool = helpers.check_255(fragments[i].color)
                 if color_bool:
-                    new_color = convert_01(fragments[i].color)
+                    new_color = helpers.convert_01(fragments[i].color)
                     fragments[i].color = new_color
         return fragments
 
@@ -51,12 +60,12 @@ class Line(Primitive):
         points = self.bresenham()
         #Draw points
         for i in range(len(points)):
-            new_coord = coordinate_conversion(points[i][0], points[i][1], block_size, margin)
+            new_coord = helpers.coordinate_conversion(points[i][0], points[i][1], block_size, margin)
             point = Point((new_coord[0], new_coord[1], points[i][2]), self.color)
             frags = point.draw(fragments)
         return frags
     
-    def bresenham(self):
+    def bresenham(self): #Bresenham's algorithm for line rasterization
         x0, y0, z0, x1, y1, z1 = self.start[0], self.start[1], self.start[2], self.end[0], self.end[1], self.end[2]
         if (abs(y1 - y0) < abs(x1 - x0)):
             if x0 > x1:
@@ -76,7 +85,7 @@ class Line(Primitive):
         xi = 1
         if deltaX < 0:
             xi = -1
-            dx = -dx
+            deltaX = -deltaX
         D = 2 * deltaX - deltaY
         xVal = x0
 
